@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GeneXus XML Viewer</title>
+  <title>GeneXus XML Viewer v2</title>
   <!-- highlight.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
@@ -119,35 +119,27 @@
     .section-header {
       padding: 14px 20px;
       background: var(--bg-surface2);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between;
-      user-select: none;
-      transition: background 0.2s;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; user-select: none;
     }
-    .section-header:hover { background: rgba(137,180,250,0.08); }
-    .section-header h3 {
-      font-size: 15px; font-weight: 600;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .section-header .toggle {
-      font-size: 18px; color: var(--text-muted);
-      transition: transform 0.3s;
-    }
-    .section-header.collapsed .toggle { transform: rotate(-90deg); }
-    .section-body { padding: 18px 20px; }
-    .section-header.collapsed + .section-body { display: none; }
-    /* ===== INFO GRID ===== */
+    .section-header h3 { font-size: 14px; font-weight: 600; }
+    .section-header .toggle { color: var(--text-muted); font-size: 12px; transition: transform 0.3s; }
+    .section-body { padding: 20px; }
+    .section.collapsed .section-body { display: none; }
+    .section.collapsed .toggle { transform: rotate(-90deg); }
+    /* Info Grid */
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
     }
     .info-item {
       background: var(--bg-secondary);
-      padding: 12px 16px; border-radius: 8px;
+      border-radius: 8px; padding: 12px 16px;
+      border: 1px solid var(--border);
     }
     .info-item label {
-      font-size: 11px; text-transform: uppercase;
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
       color: var(--text-muted); letter-spacing: 0.5px;
       display: block; margin-bottom: 4px;
     }
@@ -266,22 +258,74 @@
     }
     .badge-yes { background: rgba(166,227,161,0.15); color: var(--accent-green); }
     .badge-no { background: rgba(243,139,168,0.15); color: var(--accent-red); }
-    .badge-type { background: rgba(203,166,247,0.15); color: var(--accent-mauve); }
-    /* ===== CUSTOM HIGHLIGHT.JS OVERRIDES ===== */
-    .hljs { background: var(--bg-secondary) !important; }
-    .hljs-keyword { color: var(--accent-green) !important; font-weight: bold; }
-    .hljs-variable { color: var(--accent-cyan) !important; }
-    .hljs-string { color: var(--accent-orange) !important; }
-    .hljs-comment { color: var(--text-muted) !important; font-style: italic; }
-    .hljs-number { color: var(--accent-mauve) !important; }
-    .hljs-built_in { color: var(--accent-yellow) !important; }
-    .hljs-title { color: var(--accent-blue) !important; }
-    .hljs-operator { color: var(--accent-red) !important; }
+    .badge-type { background: rgba(137,180,250,0.15); color: var(--accent-blue); }
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-secondary); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    /* No-aplica card */
+    .no-aplica {
+      background: var(--bg-secondary);
+      border-radius: 8px; padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      border: 1px dashed var(--border);
+    }
+    /* Web Form cards */
+    .wf-grid-card {
+      background: var(--bg-secondary);
+      border-radius: 8px; padding: 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .wf-grid-card h4 {
+      color: var(--accent-teal); font-size: 14px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .wf-grid-card .col-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .wf-grid-card .col-tag {
+      background: rgba(137,180,250,0.1);
+      color: var(--accent-blue);
+      padding: 3px 10px; border-radius: 6px;
+      font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    }
+    .wf-btn-list {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .wf-btn-tag {
+      background: rgba(203,166,247,0.1);
+      color: var(--accent-mauve);
+      padding: 5px 14px; border-radius: 6px;
+      font-size: 12px; font-family: 'JetBrains Mono', monospace;
+      border: 1px solid rgba(203,166,247,0.2);
+    }
+    /* Layout info */
+    .layout-card {
+      background: var(--bg-secondary);
+      border-radius: 8px; padding: 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .layout-card h4 {
+      color: var(--accent-orange); font-size: 14px; margin-bottom: 8px;
+    }
+    .layout-card p {
+      color: var(--text-secondary); font-size: 13px; line-height: 1.6;
+    }
+    .layout-card .stat {
+      display: inline-block; margin-right: 20px;
+    }
+    .layout-card .stat label {
+      font-size: 10px; text-transform: uppercase; color: var(--text-muted);
+      display: block; margin-bottom: 2px;
+    }
+    .layout-card .stat span {
+      font-size: 18px; font-weight: 700; color: var(--accent-orange);
+    }
     /* Mobile */
     #menu-toggle {
       display: none; position: fixed; top: 12px; left: 12px;
@@ -306,7 +350,7 @@
 <aside id="sidebar">
   <div class="logo">
     <h2>⚡ GX Viewer</h2>
-    <span>GeneXus XML Object Viewer</span>
+    <span>GeneXus XML Object Viewer v2</span>
   </div>
   <nav id="nav-links">
     <a href="#sec-upload" class="active"><span class="icon">📂</span> Cargar Archivo</a>
@@ -315,9 +359,12 @@
     <a href="#sec-doc"><span class="icon">📝</span> Documentación</a>
     <a href="#sec-vars"><span class="icon">📊</span> Variables</a>
     <a href="#sec-source"><span class="icon">💻</span> Código Fuente</a>
+    <a href="#sec-events"><span class="icon">🎯</span> Eventos</a>
     <a href="#sec-rules"><span class="icon">📐</span> Reglas</a>
     <a href="#sec-cond"><span class="icon">⚙️</span> Condiciones</a>
     <a href="#sec-attrs"><span class="icon">🗄️</span> Atributos</a>
+    <a href="#sec-webform"><span class="icon">🌐</span> Web Form</a>
+    <a href="#sec-layout"><span class="icon">📄</span> Layout (Report)</a>
   </nav>
 </aside>
 
@@ -332,7 +379,7 @@
          ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFile(event.dataTransfer.files[0])">
       <div class="icon-big">📄</div>
       <h3>Arrastra tu archivo XML aquí</h3>
-      <p>o haz clic para seleccionar — Archivos .xml exportados de GeneXus</p>
+      <p>o haz clic para seleccionar — Archivos .xml exportados de GeneXus (Procedure, Report, WebPanel)</p>
       <input type="file" id="fileInput" accept=".xml" onchange="handleFile(this.files[0])">
     </div>
     <div id="file-info"></div>
@@ -388,7 +435,7 @@
         <div class="table-wrap">
           <table class="gx-table" id="var-table">
             <thead>
-              <tr><th>#</th><th>Nombre</th><th>Título</th><th>Tipo</th><th>Longitud</th><th>Decimales</th><th>Picture</th><th>Basado En</th></tr>
+              <tr><th>#</th><th>Nombre</th><th>Título</th><th>Tipo</th><th>Longitud</th><th>Decimales</th><th>Basada en</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -408,8 +455,21 @@
           <button class="btn-copy" onclick="copySource()">📋 Copiar Código</button>
         </div>
         <div class="code-container">
-          <div class="line-numbers" id="line-numbers"></div>
-          <pre><code class="language-genexus" id="source-code"></code></pre>
+          <div class="line-numbers" id="source-lines"></div>
+          <pre><code id="source-code" class="language-genexus"></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS (new) -->
+    <div class="section" id="sec-events">
+      <div class="section-header" onclick="toggleSection(this)">
+        <h3>🎯 Eventos (WebPanel)</h3>
+        <span class="toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div id="events-content">
+          <div class="no-aplica">Carga un archivo XML para ver esta sección.</div>
         </div>
       </div>
     </div>
@@ -417,13 +477,11 @@
     <!-- RULES -->
     <div class="section" id="sec-rules">
       <div class="section-header" onclick="toggleSection(this)">
-        <h3>📐 Reglas (Rules)</h3>
+        <h3>📐 Reglas</h3>
         <span class="toggle">▼</span>
       </div>
       <div class="section-body">
-        <div class="code-container">
-          <pre><code class="language-genexus" id="rules-code"></code></pre>
-        </div>
+        <div class="rules-code" id="rules-content">Sin reglas definidas.</div>
       </div>
     </div>
 
@@ -434,14 +492,14 @@
         <span class="toggle">▼</span>
       </div>
       <div class="section-body">
-        <div class="rules-code" id="cond-code">Sin condiciones.</div>
+        <div class="rules-code" id="cond-content">Sin condiciones definidas.</div>
       </div>
     </div>
 
     <!-- ATTRIBUTES -->
     <div class="section" id="sec-attrs">
       <div class="section-header" onclick="toggleSection(this)">
-        <h3>🗄️ Atributos de la KB</h3>
+        <h3>🗄️ Atributos Referenciados</h3>
         <span class="toggle">▼</span>
       </div>
       <div class="section-body">
@@ -452,10 +510,36 @@
         <div class="table-wrap">
           <table class="gx-table" id="att-table">
             <thead>
-              <tr><th>#</th><th>Nombre</th><th>Título</th><th>Tipo</th><th>Longitud</th><th>Decimales</th><th>Dominio</th><th>Picture</th></tr>
+              <tr><th>#</th><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Longitud</th><th>Decimales</th></tr>
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEB FORM (new) -->
+    <div class="section" id="sec-webform">
+      <div class="section-header" onclick="toggleSection(this)">
+        <h3>🌐 Web Form</h3>
+        <span class="toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div id="webform-content">
+          <div class="no-aplica">Carga un archivo XML para ver esta sección.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUT (new) -->
+    <div class="section" id="sec-layout">
+      <div class="section-header" onclick="toggleSection(this)">
+        <h3>📄 Layout (Report)</h3>
+        <span class="toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div id="layout-content">
+          <div class="no-aplica">Carga un archivo XML para ver esta sección.</div>
         </div>
       </div>
     </div>
@@ -465,94 +549,34 @@
 
 <script>
 /* ================================================
-   REGISTER CUSTOM GENEXUS LANGUAGE FOR HIGHLIGHT.JS
+   GENEXUS LANGUAGE DEFINITION FOR HIGHLIGHT.JS
    ================================================ */
 hljs.registerLanguage('genexus', function(hljs) {
-  const GX_KEYWORDS = [
-    'For','Each','EndFor','If','Else','EndIf','Do','While','EndDo',
-    'Case','EndCase','Otherwise','Sub','EndSub','Call','Where',
-    'Defined','By','Parm','Exit','Return','New','EndNew','Print',
-    'When','Duplicate','Order','None','Using','Link','Blocking',
-    'To','Step','From','In','Of','Then',
-    'Msg','Confirm','Error','Event','EndEvent',
-    'Fetch','First','Into','Unique'
-  ];
-  const GX_BUILT_IN = [
-    'Val','Str','Trim','LTrim','RTrim','Len','Upper','Lower',
-    'CtoD','DtoC','CtoT','TtoC','Cdow','Cmonth',
-    'NullValue','IsEmpty','IsNull',
-    'UserId','Today','Now','ServerDate','ServerDatetime',
-    'Udp','Int','Round','Abs','Mod','Max','Min',
-    'Year','Month','Day','Hour','Minute','Second',
-    'AddMth','AddYr','Age','Eom','TAdd','TDiff',
-    'Concat','PadL','PadR','StrReplace','StrSearch','StrSearchRev',
-    'RGZ','Format','Space','Repl','Substr',
-    'ExcelDocument','ExcelCells','Open','Save','Close',
-    'HttpClient','Execute','AddHeader','AddVariable',
-    'XmlReader','XmlWriter','Read','ReadType','Write','WriteElement',
-    'Commit','Rollback','Submit','Sleep','Shell','Link',
-    'MsgBox','AddMsg','GXMLines','GXMLi',
-    'ToXml','FromXml','ToString','ToNumeric',
-    'Random','Iif','Type','GetMessage','SetLanguage'
-  ];
-  const GX_LITERALS = [
-    'True','False','true','false','Y','N'
-  ];
-
   return {
-    name: 'GeneXus',
-    aliases: ['genexus','gx','gxprocedure'],
     case_insensitive: true,
     keywords: {
-      keyword: GX_KEYWORDS.join(' '),
-      built_in: GX_BUILT_IN.join(' '),
-      literal: GX_LITERALS.join(' ')
+      keyword: 'if else endif do while enddo for each endfor where order defined by in to step case of otherwise endcase new endnew return sub endsub call msg print header footer default none using output_file event endevent load',
+      built_in: 'parm rule error noacceptaliascustom noaccept hidden prompt msg add subtract multiply divide str val udp create_default format dateadd datediff year month day today now dtoc ctod len trim ltrim rtrim upper lower padl padr replicate round int abs mod max min iif concat space empty',
+      literal: 'true false null',
+      type: 'numeric character char varchar longvarchar date datetime boolean'
     },
     contains: [
-      // Variables &VarName
-      {
-        className: 'variable',
-        begin: /&[A-Za-z_]\w*/
-      },
-      // Single-quoted strings
-      {
-        className: 'string',
-        begin: /'/,
-        end: /'/,
-        contains: [{ begin: /''/ }]
-      },
-      // Double-quoted strings
-      {
-        className: 'string',
-        begin: /"/,
-        end: /"/,
-        contains: [{ begin: /""/ }]
-      },
-      // Line comments
-      hljs.COMMENT('//', '$'),
-      // Numbers
-      {
-        className: 'number',
-        begin: /\b\d+(\.\d+)?\b/
-      },
-      // Operators
-      {
-        className: 'operator',
-        begin: /\b(And|Or|Not|Like)\b/i
-      },
-      // Subroutine names after Sub/Call
-      {
-        className: 'title',
-        begin: /(?<=\b(?:Sub|Call)\s+)['\"]?\w+['\"]?/i
-      }
+      hljs.C_LINE_COMMENT_MODE,
+      hljs.C_BLOCK_COMMENT_MODE,
+      { className: 'string', begin: /"/, end: /"/, contains: [hljs.BACKSLASH_ESCAPE] },
+      { className: 'string', begin: /'/, end: /'/, contains: [hljs.BACKSLASH_ESCAPE] },
+      { className: 'number', begin: /\b\d+(\.\d+)?\b/ },
+      { className: 'variable', begin: /&\w+/ },
+      { className: 'title', begin: /\b(proc|udp|call)\s+\w+/i }
     ]
   };
 });
 
 /* ================================================
-   GLOBAL VARIABLES
+   GLOBAL STATE
    ================================================ */
 let rawSourceCode = '';
+let rawEventsCode = '';
 
 /* ================================================
    FILE HANDLING
@@ -565,14 +589,84 @@ function handleFile(file) {
   }
   const reader = new FileReader();
   reader.onload = function(e) {
-    const text = e.target.result;
-    parseXML(text, file.name, file.size);
+    parseXML(e.target.result, file.name, file.size);
   };
   reader.readAsText(file, 'ISO-8859-1');
 }
 
 /* ================================================
-   XML PARSING
+   TOGGLE SECTION
+   ================================================ */
+function toggleSection(header) {
+  header.parentElement.classList.toggle('collapsed');
+}
+
+/* ================================================
+   NAV ACTIVE STATE
+   ================================================ */
+document.querySelectorAll('#nav-links a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    document.querySelectorAll('#nav-links a').forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+    // Close mobile menu
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
+
+/* ================================================
+   FILTER TABLE
+   ================================================ */
+function filterTable(tableId, query, countId) {
+  const table = document.getElementById(tableId);
+  const rows = table.querySelectorAll('tbody tr');
+  const q = query.toLowerCase();
+  let visible = 0;
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const match = text.includes(q);
+    row.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  document.getElementById(countId).textContent = query ? `${visible} de ${rows.length}` : `${rows.length} total`;
+}
+
+/* ================================================
+   COPY SOURCE
+   ================================================ */
+function copySource() {
+  if (!rawSourceCode) return;
+  navigator.clipboard.writeText(rawSourceCode).then(() => {
+    const btn = document.querySelector('#sec-source .btn-copy');
+    btn.textContent = '✅ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copiar Código'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyEvents() {
+  if (!rawEventsCode) return;
+  navigator.clipboard.writeText(rawEventsCode).then(() => {
+    const btn = document.querySelector('#sec-events .btn-copy');
+    btn.textContent = '✅ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copiar Código'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ================================================
+   HELPER: GET GX OBJECT (Procedure, Report, WebPanel)
+   ================================================ */
+function getGXObject(doc) {
+  const types = ['Procedure', 'Report', 'WebPanel'];
+  for (const t of types) {
+    const el = doc.querySelector(t);
+    if (el) return { element: el, type: t };
+  }
+  return { element: null, type: 'Unknown' };
+}
+
+/* ================================================
+   PARSE XML — MAIN ENTRY POINT
    ================================================ */
 function parseXML(xmlText, fileName, fileSize) {
   const parser = new DOMParser();
@@ -593,29 +687,18 @@ function parseXML(xmlText, fileName, fileSize) {
   // Show content
   document.getElementById('content').style.display = 'block';
 
-  // 1. Model Info
+  // Fill all sections
   fillModelInfo(doc);
-
-  // 2. Object Info
   fillObjectInfo(doc);
-
-  // 3. Documentation
   fillDocumentation(doc);
-
-  // 4. Variables
   fillVariables(doc);
-
-  // 5. Source Code
   fillSourceCode(doc);
-
-  // 6. Rules
+  fillEvents(doc);
   fillRules(doc);
-
-  // 7. Conditions
   fillConditions(doc);
-
-  // 8. Attributes
   fillAttributes(doc);
+  fillWebForm(doc);
+  fillLayout(doc);
 
   // Scroll to content
   document.getElementById('sec-model').scrollIntoView({ behavior: 'smooth' });
@@ -648,7 +731,7 @@ function fillModelInfo(doc) {
     items.push(infoItem('Versión KMW', getTag(kmw,'MajorVersion') + '.' + getTag(kmw,'MinorVersion')));
     items.push(infoItem('Max GX Build', getTag(kmw,'MaxGxBuildSaved')));
   }
-  grid.innerHTML = items.join('');
+  grid.innerHTML = items.length ? items.join('') : '<div class="no-aplica">No se encontró información del modelo.</div>';
 }
 
 function infoItem(label, value) {
@@ -656,27 +739,34 @@ function infoItem(label, value) {
 }
 
 /* ================================================
-   2. OBJECT INFO
+   2. OBJECT INFO (generic: Procedure, Report, WebPanel)
    ================================================ */
 function fillObjectInfo(doc) {
-  const proc = doc.querySelector('Procedure');
-  if (!proc) return;
-  const info = proc.querySelector('Info');
-  const objInfo = proc.querySelector('ObjInfo');
+  const { element: obj, type: objType } = getGXObject(doc);
   const grid = document.getElementById('object-info');
+  if (!obj) {
+    grid.innerHTML = '<div class="no-aplica">No se encontró un objeto GeneXus reconocido (Procedure, Report o WebPanel).</div>';
+    return;
+  }
+
+  const info = obj.querySelector('Info');
+  const objInfo = obj.querySelector('ObjInfo');
   const name = info ? getTag(info,'Name') : '';
   const desc = info ? getTag(info,'Description') : '';
   const isMain = objInfo ? getTag(objInfo,'IsMain') : '';
-  const lastUpdate = getTag(proc,'LastUpdate');
+  const lastUpdate = getTag(obj,'LastUpdate');
   const isMainBadge = isMain === 'Y'
     ? '<span class="badge badge-yes">✔ Sí</span>'
     : '<span class="badge badge-no">✘ No</span>';
 
-  // Detect object type
-  const objType = proc.tagName || 'Procedure';
+  // Type badge color coding
+  let typeBadgeClass = 'badge-type';
+  let typeIcon = '🔧';
+  if (objType === 'Report') { typeIcon = '📄'; }
+  else if (objType === 'WebPanel') { typeIcon = '🌐'; }
 
   grid.innerHTML = [
-    infoItem('Tipo Objeto', `<span class="badge badge-type">${objType}</span>`),
+    infoItem('Tipo Objeto', `<span class="badge ${typeBadgeClass}">${typeIcon} ${objType}</span>`),
     infoItem('Nombre', `<strong style="color:var(--accent-cyan);font-size:16px">${name}</strong>`),
     infoItem('Descripción', desc),
     infoItem('Es Main (IsMain)', isMainBadge),
@@ -697,217 +787,437 @@ function fillDocumentation(doc) {
   tmp.innerHTML = html;
   let text = tmp.textContent || tmp.innerText || '';
   // Clean up whitespace
-  text = text.replace(/\s+/g, ' ').replace(/</g, '\n<').replace(/>/g, '>\n');
-  // Try to render as structured text
-  text = html.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&')
-             .replace(/&nbsp;/g,' ').replace(/<BR\s*\/?>/gi,'\n').replace(/<\/?P>/gi,'\n')
-             .replace(/<[^>]*>/g,'').trim();
+  text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   container.textContent = text || 'Sin documentación disponible.';
 }
 
 /* ================================================
-   4. VARIABLES
+   4. VARIABLES (generic)
    ================================================ */
 function fillVariables(doc) {
-  const proc = doc.querySelector('Procedure');
-  if (!proc) return;
-  const vars = proc.querySelectorAll(':scope > Variable');
+  const { element: obj, type: objType } = getGXObject(doc);
   const tbody = document.querySelector('#var-table tbody');
   tbody.innerHTML = '';
-  let i = 0;
-  vars.forEach(v => {
-    i++;
-    const name = getTag(v,'Name');
-    const title = getTag(v,'Title');
-    const length = getTag(v,'Length');
-    const decimals = getTag(v,'Decimals');
-    const picture = getTag(v,'Picture');
-    const basedOn = getTag(v,'BasedOn');
-    // Try to find type from Property or BasedOn
+
+  let vars = [];
+  if (obj) {
+    vars = Array.from(obj.querySelectorAll('Variable'));
+  }
+
+  if (vars.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Sin variables</td></tr>';
+    document.getElementById('var-count').textContent = '0 total';
+    return;
+  }
+
+  vars.forEach((v, i) => {
+    const name = v.getAttribute('Name') || getTag(v,'Name') || '—';
+    const title = v.getAttribute('Title') || getTag(v,'Title') || '—';
+
+    // Type detection: try explicit <Type> tag first, then attribute
     let type = '';
-    const props = v.querySelectorAll('Property');
-    props.forEach(p => {
-      const pName = getTag(p,'Name');
-      if (pName === 'ATT_PICTURE' || pName === 'ATTCUSTOMTYPE') {
-        // skip, we already have picture
-      }
-    });
-    if (basedOn) type = 'BasedOn';
-    else if (length && parseInt(decimals) > 0) type = 'Numeric';
-    else if (length) type = 'Character';
-    else if (picture && picture.includes('9')) type = 'Numeric';
-    else type = 'Var';
+    const typeEl = v.querySelector('Type');
+    if (typeEl) {
+      type = typeEl.textContent.trim();
+    }
+    if (!type) {
+      type = v.getAttribute('Type') || '';
+    }
 
-    tbody.innerHTML += `<tr>
-      <td>${i}</td>
+    // Length and decimals
+    let length = v.getAttribute('Length') || getTag(v,'Length') || '';
+    let decimals = v.getAttribute('Decimals') || getTag(v,'Decimals') || '';
+
+    // Based on attribute
+    let basedOn = v.getAttribute('BasedOn') || v.getAttribute('BasedOnAtt') || '';
+    if (!basedOn) {
+      const bo = v.querySelector('BasedOn');
+      if (bo) basedOn = bo.textContent.trim();
+    }
+    if (!basedOn) {
+      const attDom = v.querySelector('AtributeDomain');
+      if (attDom) basedOn = attDom.textContent.trim();
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
       <td class="var-name">&amp;${name}</td>
-      <td>${title}</td>
-      <td class="type-col">${type}</td>
-      <td>${length || '—'}</td>
-      <td>${decimals || '—'}</td>
-      <td><code>${picture || '—'}</code></td>
-      <td>${basedOn ? '<span style="color:var(--accent-teal)">' + basedOn + '</span>' : '—'}</td>
-    </tr>`;
-  });
-  document.getElementById('var-count').textContent = `${i} variables`;
-}
-
-/* ================================================
-   5. SOURCE CODE
-   ================================================ */
-function fillSourceCode(doc) {
-  // Source is inside Layout > Block (or FormInfo) > CodeBlock > Source
-  let source = '';
-
-  // Try multiple paths
-  const codeBlocks = doc.querySelectorAll('CodeBlock > Source');
-  if (codeBlocks.length > 0) {
-    codeBlocks.forEach(cb => {
-      source += (cb.textContent || '') + '\n';
-    });
-  }
-
-  // Fallback: look for Layout > Source directly
-  if (!source.trim()) {
-    const layoutSources = doc.querySelectorAll('Layout Source');
-    layoutSources.forEach(ls => {
-      source += (ls.textContent || '') + '\n';
-    });
-  }
-
-  source = source.trim();
-  rawSourceCode = source;
-
-  if (!source) {
-    document.getElementById('source-code').textContent = '// No se encontró código fuente en este XML.';
-    document.getElementById('source-info').textContent = '0 líneas';
-    return;
-  }
-
-  const codeEl = document.getElementById('source-code');
-  codeEl.textContent = source;
-
-  // Apply highlighting
-  hljs.highlightElement(codeEl);
-
-  // Line numbers
-  const lines = source.split('\n');
-  const lineNumEl = document.getElementById('line-numbers');
-  lineNumEl.innerHTML = lines.map((_, i) => `<span>${i + 1}</span>`).join('');
-
-  document.getElementById('source-info').textContent = `${lines.length} líneas · ${source.length} caracteres`;
-}
-
-/* ================================================
-   6. RULES
-   ================================================ */
-function fillRules(doc) {
-  const rulesEl = doc.querySelector('Rules');
-  const codeEl = document.getElementById('rules-code');
-  if (!rulesEl) { codeEl.textContent = '// Sin reglas definidas.'; return; }
-  const text = (rulesEl.textContent || '').trim();
-  if (!text) { codeEl.textContent = '// Sin reglas definidas.'; return; }
-  codeEl.textContent = text;
-  hljs.highlightElement(codeEl);
-}
-
-/* ================================================
-   7. CONDITIONS
-   ================================================ */
-function fillConditions(doc) {
-  const condEl = doc.querySelector('Conditions');
-  const container = document.getElementById('cond-code');
-  if (!condEl) { container.textContent = 'Sin condiciones definidas.'; return; }
-  const text = (condEl.textContent || '').trim();
-  container.textContent = text || 'Sin condiciones definidas.';
-}
-
-/* ================================================
-   8. ATTRIBUTES
-   ================================================ */
-function fillAttributes(doc) {
-  const atts = doc.querySelectorAll('Attributes > GXAtt');
-  const tbody = document.querySelector('#att-table tbody');
-  tbody.innerHTML = '';
-  if (!atts.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No se encontraron atributos en este XML.</td></tr>';
-    document.getElementById('att-count').textContent = '0 atributos';
-    return;
-  }
-  let i = 0;
-  atts.forEach(gxatt => {
-    const att = gxatt.querySelector('Attribute');
-    if (!att) return;
-    i++;
-    const name = getTag(att,'Name');
-    const title = getTag(att,'Title');
-    const type = getTag(att,'Type');
-    const length = getTag(att,'Length');
-    const decimals = getTag(att,'Decimals');
-    const picture = getTag(att,'Picture');
-    const attInfoEl = gxatt.querySelector('AttInfo');
-    const domain = attInfoEl ? getTag(attInfoEl,'Domain') : '';
-
-    tbody.innerHTML += `<tr>
-      <td>${i}</td>
-      <td class="att-name">${name}</td>
       <td>${title}</td>
       <td class="type-col">${type || '—'}</td>
       <td>${length || '—'}</td>
       <td>${decimals || '—'}</td>
-      <td>${domain ? '<span style="color:var(--accent-teal)">' + domain + '</span>' : '—'}</td>
-      <td><code>${picture || '—'}</code></td>
-    </tr>`;
+      <td>${basedOn || '—'}</td>
+    `;
+    tbody.appendChild(tr);
   });
-  document.getElementById('att-count').textContent = `${i} atributos`;
+
+  document.getElementById('var-count').textContent = `${vars.length} total`;
 }
 
 /* ================================================
-   UTILITIES
+   5. SOURCE CODE (Procedure/Report: CodeBlock>Source; WebPanel: Events or CodeBlock>Source)
    ================================================ */
-function toggleSection(header) {
-  header.classList.toggle('collapsed');
+function fillSourceCode(doc) {
+  const { element: obj, type: objType } = getGXObject(doc);
+  const codeEl = document.getElementById('source-code');
+  const linesEl = document.getElementById('source-lines');
+  const infoEl = document.getElementById('source-info');
+
+  rawSourceCode = '';
+
+  // Try CodeBlock > Source first (works for Procedure, Report)
+  let sourceNodes = doc.querySelectorAll('CodeBlock > Source');
+  let sourceText = '';
+  sourceNodes.forEach(s => {
+    const t = s.textContent.trim();
+    if (t) sourceText += (sourceText ? '\n' : '') + t;
+  });
+
+  // For WebPanel, if no CodeBlock source, try Events as main source
+  if (!sourceText && objType === 'WebPanel') {
+    const eventsEl = obj ? obj.querySelector('Events') : null;
+    if (eventsEl) {
+      sourceText = eventsEl.textContent.trim();
+    }
+  }
+
+  if (!sourceText) {
+    codeEl.textContent = '// Sin código fuente disponible';
+    linesEl.innerHTML = '<span>1</span>';
+    infoEl.textContent = '0 líneas';
+    return;
+  }
+
+  rawSourceCode = sourceText;
+  codeEl.textContent = sourceText;
+  hljs.highlightElement(codeEl);
+
+  const lines = sourceText.split('\n');
+  linesEl.innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
+  infoEl.textContent = `${lines.length} líneas — ${objType}`;
 }
 
-function copySource() {
-  navigator.clipboard.writeText(rawSourceCode).then(() => {
-    const btn = document.querySelector('.btn-copy');
-    btn.textContent = '✅ Copiado!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 Copiar Código';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
+/* ================================================
+   6. EVENTS (WebPanel only)
+   ================================================ */
+function fillEvents(doc) {
+  const { element: obj, type: objType } = getGXObject(doc);
+  const container = document.getElementById('events-content');
+  rawEventsCode = '';
+
+  if (objType !== 'WebPanel') {
+    container.innerHTML = '<div class="no-aplica">📌 Los Eventos solo aplican para objetos de tipo <strong>WebPanel</strong>.</div>';
+    return;
+  }
+
+  const eventsEl = obj ? obj.querySelector('Events') : null;
+  if (!eventsEl || !eventsEl.textContent.trim()) {
+    container.innerHTML = '<div class="no-aplica">Sin eventos definidos en este WebPanel.</div>';
+    return;
+  }
+
+  const eventsText = eventsEl.textContent.trim();
+  rawEventsCode = eventsText;
+  const lines = eventsText.split('\n');
+
+  container.innerHTML = `
+    <div class="code-toolbar">
+      <span class="info-label">${lines.length} líneas de eventos</span>
+      <button class="btn-copy" onclick="copyEvents()">📋 Copiar Eventos</button>
+    </div>
+    <div class="code-container">
+      <div class="line-numbers" id="events-lines"></div>
+      <pre><code id="events-code" class="language-genexus"></code></pre>
+    </div>
+  `;
+
+  const codeEl = document.getElementById('events-code');
+  codeEl.textContent = eventsText;
+  hljs.highlightElement(codeEl);
+
+  const linesEl = document.getElementById('events-lines');
+  linesEl.innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
 }
 
-function filterTable(tableId, query, countId) {
-  const table = document.getElementById(tableId);
-  const rows = table.querySelectorAll('tbody tr');
-  const q = query.toLowerCase();
-  let visible = 0;
-  rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
-    const match = text.includes(q);
-    row.style.display = match ? '' : 'none';
-    if (match) visible++;
-  });
-  const total = rows.length;
-  document.getElementById(countId).textContent = query
-    ? `${visible} de ${total}`
-    : `${total} ${tableId === 'var-table' ? 'variables' : 'atributos'}`;
+/* ================================================
+   7. RULES
+   ================================================ */
+function fillRules(doc) {
+  const rulesEl = doc.querySelector('Rules');
+  const container = document.getElementById('rules-content');
+  if (!rulesEl || !rulesEl.textContent.trim()) {
+    container.textContent = 'Sin reglas definidas.';
+    return;
+  }
+  container.textContent = rulesEl.textContent.trim();
 }
 
-// Nav active state
-document.querySelectorAll('#nav-links a').forEach(link => {
-  link.addEventListener('click', () => {
-    document.querySelectorAll('#nav-links a').forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
-    // Close mobile sidebar
-    document.getElementById('sidebar').classList.remove('open');
+/* ================================================
+   8. CONDITIONS
+   ================================================ */
+function fillConditions(doc) {
+  const condEl = doc.querySelector('Conditions');
+  const container = document.getElementById('cond-content');
+  if (!condEl || !condEl.textContent.trim()) {
+    container.textContent = 'Sin condiciones definidas.';
+    return;
+  }
+  container.textContent = condEl.textContent.trim();
+}
+
+/* ================================================
+   9. ATTRIBUTES
+   ================================================ */
+function fillAttributes(doc) {
+  const tbody = document.querySelector('#att-table tbody');
+  tbody.innerHTML = '';
+
+  const atts = doc.querySelectorAll('Attribute');
+  if (atts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Sin atributos referenciados</td></tr>';
+    document.getElementById('att-count').textContent = '0 total';
+    return;
+  }
+
+  const seen = new Set();
+  let count = 0;
+  atts.forEach(a => {
+    const name = a.getAttribute('Name') || getTag(a,'Name') || '';
+    if (!name || seen.has(name.toLowerCase())) return;
+    seen.add(name.toLowerCase());
+    count++;
+
+    const desc = a.getAttribute('Description') || getTag(a,'Description') || '';
+    const type = a.getAttribute('Type') || getTag(a,'Type') || '';
+    const length = a.getAttribute('Length') || getTag(a,'Length') || '';
+    const decimals = a.getAttribute('Decimals') || getTag(a,'Decimals') || '';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${count}</td>
+      <td class="att-name">${name}</td>
+      <td>${desc}</td>
+      <td class="type-col">${type || '—'}</td>
+      <td>${length || '—'}</td>
+      <td>${decimals || '—'}</td>
+    `;
+    tbody.appendChild(tr);
   });
-});
+
+  document.getElementById('att-count').textContent = `${count} total`;
+}
+
+/* ================================================
+   10. WEB FORM (WebPanel only)
+   ================================================ */
+function fillWebForm(doc) {
+  const { element: obj, type: objType } = getGXObject(doc);
+  const container = document.getElementById('webform-content');
+
+  if (objType !== 'WebPanel') {
+    container.innerHTML = '<div class="no-aplica">📌 El Web Form solo aplica para objetos de tipo <strong>WebPanel</strong>.</div>';
+    return;
+  }
+
+  const htmlForm = obj ? obj.querySelector('HTMLForm') : null;
+  if (!htmlForm) {
+    container.innerHTML = '<div class="no-aplica">Sin formulario web definido en este WebPanel.</div>';
+    return;
+  }
+
+  let html = '';
+
+  // --- Extract Grids (HTMLSFL controls) ---
+  const controls = htmlForm.querySelectorAll('HTMLControl');
+  let grids = [];
+  let buttons = [];
+  let labels = [];
+
+  controls.forEach(ctrl => {
+    const ctrlType = ctrl.getAttribute('ControlIdType') || getTag(ctrl,'ControlIdType') || '';
+    const ctrlName = ctrl.getAttribute('ControlName') || getTag(ctrl,'ControlName') || '';
+    const caption = ctrl.getAttribute('Caption') || getTag(ctrl,'Caption') || '';
+
+    // Grids: look for HTMLSFL type or Grid type  
+    if (ctrlType === 'HTMLSFL' || ctrlType === 'Grid' || ctrlName.toLowerCase().includes('grid')) {
+      // Get columns from ChildProperties
+      const colTitles = [];
+      const childProps = ctrl.querySelectorAll('ChildProperties > Property, ColProperty');
+      childProps.forEach(cp => {
+        const colTitle = cp.getAttribute('ColTitle') || getTag(cp,'ColTitle') || '';
+        if (colTitle) colTitles.push(colTitle);
+      });
+
+      // Also try columns from direct col elements
+      const cols = ctrl.querySelectorAll('Column, Col');
+      cols.forEach(col => {
+        const ct = col.getAttribute('ColTitle') || col.getAttribute('Title') || getTag(col,'ColTitle') || getTag(col,'Title') || '';
+        if (ct && !colTitles.includes(ct)) colTitles.push(ct);
+      });
+
+      grids.push({ name: ctrlName || 'Grid', columns: colTitles });
+    }
+
+    // Buttons: look for BTN type or button-like ids
+    if (ctrlType === 'BUTTON' || ctrlType === 'IMAGE' || 
+        (ctrlName && (ctrlName.toLowerCase().startsWith('btn') || ctrlName.toLowerCase().includes('button')))) {
+      buttons.push({ id: ctrlName, caption: caption || ctrlName });
+    }
+
+    // Labels / text blocks
+    if (ctrlType === 'TEXTBLOCK' || ctrlType === 'TEXT') {
+      if (caption) labels.push(caption);
+    }
+  });
+
+  // Also try to find grids from a different XML path used in GX9
+  if (grids.length === 0) {
+    const sflControls = htmlForm.querySelectorAll('[ControlIdType="HTMLSFL"]');
+    sflControls.forEach(ctrl => {
+      const nm = ctrl.getAttribute('ControlName') || 'Grid';
+      grids.push({ name: nm, columns: [] });
+    });
+  }
+
+  // Parse raw HTML form content to find additional elements
+  const formText = htmlForm.textContent || '';
+  
+  // Try to extract button-like SPAN elements from the raw form HTML
+  const spanRegex = /id="([^"]*(?:btn|BTN|BUTTON|button)[^"]*)"/gi;
+  let match;
+  while ((match = spanRegex.exec(formText)) !== null) {
+    const btnId = match[1];
+    if (!buttons.find(b => b.id === btnId)) {
+      buttons.push({ id: btnId, caption: btnId });
+    }
+  }
+
+  // Build HTML output
+  if (grids.length > 0) {
+    html += '<h4 style="color:var(--accent-teal);margin-bottom:12px">📊 Grids Encontrados</h4>';
+    grids.forEach(g => {
+      html += `<div class="wf-grid-card">
+        <h4>📋 ${g.name}</h4>`;
+      if (g.columns.length > 0) {
+        html += '<div class="col-list">';
+        g.columns.forEach(c => { html += `<span class="col-tag">${c}</span>`; });
+        html += '</div>';
+      } else {
+        html += '<p style="color:var(--text-muted);font-size:12px">Columnas no especificadas en detalle en el XML</p>';
+      }
+      html += '</div>';
+    });
+  }
+
+  if (buttons.length > 0) {
+    html += '<h4 style="color:var(--accent-mauve);margin:16px 0 8px">🔘 Botones / Acciones</h4>';
+    html += '<div class="wf-btn-list">';
+    buttons.forEach(b => {
+      html += `<span class="wf-btn-tag" title="${b.id}">${b.caption}</span>`;
+    });
+    html += '</div>';
+  }
+
+  if (labels.length > 0) {
+    html += '<h4 style="color:var(--accent-yellow);margin:16px 0 8px">🏷️ Etiquetas de Texto</h4>';
+    html += '<div class="wf-btn-list">';
+    labels.forEach(l => {
+      html += `<span class="col-tag">${l}</span>`;
+    });
+    html += '</div>';
+  }
+
+  if (!html) {
+    // Show raw form structure summary
+    const allChildren = htmlForm.children;
+    html = `<div class="layout-card">
+      <h4>🌐 Formulario Web Detectado</h4>
+      <p>El formulario HTML contiene <strong>${allChildren.length}</strong> elementos de nivel superior.</p>
+      <p style="margin-top:8px;color:var(--text-muted);font-size:12px">El contenido del formulario está definido como HTML embebido en el XML. Los elementos detallados pueden variar según la estructura del export de GeneXus 9.</p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* ================================================
+   11. LAYOUT (Report only)
+   ================================================ */
+function fillLayout(doc) {
+  const { element: obj, type: objType } = getGXObject(doc);
+  const container = document.getElementById('layout-content');
+
+  if (objType !== 'Report') {
+    container.innerHTML = '<div class="no-aplica">📌 El Layout solo aplica para objetos de tipo <strong>Report</strong>.</div>';
+    return;
+  }
+
+  const layout = obj ? obj.querySelector('Layout') : null;
+  if (!layout) {
+    // Try to get layout info from the report itself
+    container.innerHTML = '<div class="no-aplica">Sin información de Layout disponible en este Report.</div>';
+    return;
+  }
+
+  let html = '';
+
+  // Paper info
+  const paper = layout.querySelector('Paper');
+  if (paper) {
+    const paperWidth = getTag(paper,'Width') || paper.getAttribute('Width') || '';
+    const paperLength = getTag(paper,'Length') || paper.getAttribute('Length') || '';
+    const paperType = getTag(paper,'Type') || paper.getAttribute('Type') || '';
+    html += `<div class="layout-card">
+      <h4>📏 Configuración del Papel</h4>
+      <div>
+        <span class="stat"><label>Tipo</label><span>${paperType || '—'}</span></span>
+        <span class="stat"><label>Ancho</label><span>${paperWidth || '—'}</span></span>
+        <span class="stat"><label>Alto</label><span>${paperLength || '—'}</span></span>
+      </div>
+    </div>`;
+  }
+
+  // PrintBlocks
+  const printBlocks = layout.querySelectorAll('PrintBlock');
+  if (printBlocks.length > 0) {
+    html += `<div class="layout-card">
+      <h4>🖨️ Print Blocks (${printBlocks.length})</h4>
+      <div class="table-wrap"><table class="gx-table"><thead><tr><th>#</th><th>Nombre</th><th>Tipo</th><th>Controles</th></tr></thead><tbody>`;
+    printBlocks.forEach((pb, i) => {
+      const pbName = pb.getAttribute('Name') || getTag(pb,'Name') || `Block ${i+1}`;
+      const pbType = pb.getAttribute('Type') || getTag(pb,'Type') || '—';
+      const controlCount = pb.querySelectorAll('Control, PrintControl, HTMLControl').length;
+      html += `<tr><td>${i+1}</td><td class="var-name">${pbName}</td><td class="type-col">${pbType}</td><td>${controlCount}</td></tr>`;
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  // CodeBlocks in Layout
+  const codeBlocks = layout.querySelectorAll('CodeBlock');
+  if (codeBlocks.length > 0) {
+    html += `<div class="layout-card">
+      <h4>💻 Code Blocks en Layout (${codeBlocks.length})</h4>`;
+    codeBlocks.forEach((cb, i) => {
+      const src = cb.querySelector('Source');
+      const srcText = src ? src.textContent.trim() : '';
+      const lines = srcText ? srcText.split('\n').length : 0;
+      html += `<p style="margin:4px 0;color:var(--text-secondary)">Block ${i+1}: <span style="color:var(--accent-cyan)">${lines} líneas</span></p>`;
+    });
+    html += '</div>';
+  }
+
+  // General layout stats if nothing specific found
+  if (!html) {
+    const allChildren = layout.children;
+    html = `<div class="layout-card">
+      <h4>📄 Layout del Report</h4>
+      <p>El layout contiene <strong>${allChildren.length}</strong> elementos de nivel superior.</p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
 </script>
-
 </body>
 </html>
