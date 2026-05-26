@@ -390,6 +390,75 @@ body {
   padding: 16px 16px 16px 60px !important;
 }
 
+.code-lines {
+  margin: 0;
+  padding: 16px 16px 16px 60px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.code-row {
+  display: flex;
+  align-items: flex-start;
+  white-space: pre;
+}
+
+.code-line-number,
+.code-section-header .code-line-number {
+  width: 48px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  user-select: none;
+}
+
+.code-line-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.code-section {
+  border-left: 2px solid rgba(137, 180, 250, 0.35);
+  margin-left: 20px;
+}
+
+.code-section-header {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.code-section-header:hover {
+  background: rgba(137, 180, 250, 0.05);
+}
+
+.code-section-toggle {
+  color: var(--accent-blue);
+  font-size: 0.85rem;
+  user-select: none;
+  margin-left: 8px;
+}
+
+.code-section-body {
+  margin-left: 0;
+}
+
+.code-section.collapsed .code-section-body {
+  display: none;
+}
+
 .line-numbers {
   position: absolute;
   top: 0;
