@@ -48,6 +48,17 @@ export function Sidebar({ activeId, open, onNavigate }: SidebarProps) {
           </a>
         ))}
       </nav>
+      <footer className="sidebar-footer">
+        <div className="footer-content">
+          <span>Developed by</span>
+          <strong>CCANAR</strong>
+        </div>
+
+        <div className="footer-meta">
+          <span>© Bantotal</span>
+          <span className="heart">❤️</span>
+        </div>
+      </footer>
     </aside>
   );
 }

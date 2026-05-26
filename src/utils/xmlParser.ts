@@ -319,11 +319,25 @@ function extractLayout(obj: Element | null, objType: string): LayoutData | null 
   };
 
   const paper = layout.querySelector('Paper');
+  // Convierte medidas a píxeles
+  // Asumiendo que SizeX y SizeY vienen en milímetros.
+  // Fórmula: px = (mm * 96) / 25.4
+  const toPx = (value: string | null) => {
+    const pixeles = parseFloat(value || '0');
+    return (pixeles) / 10;
+  };
+
   if (paper) {
+    const sizeX = getTag(paper, 'SizeX') || paper.getAttribute('SizeX') || '0';
+    const sizeY = getTag(paper, 'SizeY') || paper.getAttribute('SizeY') || '0';
+
     data.paper = {
-      type: getTag(paper, 'Type') || paper.getAttribute('Type') || '',
-      width: getTag(paper, 'Width') || paper.getAttribute('Width') || '',
-      length: getTag(paper, 'Length') || paper.getAttribute('Length') || '',
+      type: getTag(paper, 'PaperId') || paper.getAttribute('PaperId') || '',
+      //width: getTag(paper, 'SizeX') + ' px' || paper.getAttribute('SizeX') + ' px' || '0',
+      //length: getTag(paper, 'SizeY') + ' px' || paper.getAttribute('SizeY') + ' px' || '0'
+       // valores en píxeles
+      width: String(toPx(sizeX)) + ' px',
+      length: String(toPx(sizeY)) + ' px',
     };
   }
 
