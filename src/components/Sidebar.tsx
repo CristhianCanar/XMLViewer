@@ -26,7 +26,7 @@ export function Sidebar({ activeId, open, onNavigate }: SidebarProps) {
     <aside className={`sidebar${open ? ' open' : ''}`}>
       <div className="logo">
         <h2>
-          ⚡ GX Viewer GeneXus 9
+          ⚡ GX Viewer GeneXus 9 / 8
           <small style={{ fontSize: 11, color: 'var(--accent-orange)' }}>v3</small>
         </h2>
         <span>GeneXus XML / XPZ Object Viewer</span>
