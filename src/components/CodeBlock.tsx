@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from 'react';
-import Editor, { type OnMount, loader } from '@monaco-editor/react';
+import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import {
   GENEXUS_LANGUAGE_ID,
@@ -39,6 +39,13 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
   });
 }
 
+
+// ── Constantes de tipografía ──
+const FONT_SIZE = 14;
+const LINE_HEIGHT = 20;
+//const FONT_FAMILY = "'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace";
+
+
 // ── Props ──
 interface CodeBlockProps {
   code: string;
@@ -64,6 +71,13 @@ export function CodeBlock({
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const displayCode = code.trim() || emptyMessage;
+
+  
+  // ✅ Se ejecuta ANTES de montar el editor → tema ya existe cuando Monaco lo necesita
+  const handleBeforeMount: BeforeMount = useCallback((monaco) => {
+    registerGenexusWithMonaco(monaco);
+  }, []);
+
 
   // Se ejecuta cuando Monaco y el editor están listos
   const handleEditorMount: OnMount = useCallback((editorInstance, monaco) => {
@@ -107,13 +121,16 @@ export function CodeBlock({
         height={height}
         defaultLanguage={GENEXUS_LANGUAGE_ID}
         value={displayCode}
-        theme="vs-dark"
-        onMount={handleEditorMount}
+        theme="genexus-dark"
+        beforeMount={handleBeforeMount}   // ← Registra ANTES
+        onMount={handleEditorMount}        // ← Referencia DESPUÉ
         options={{
+          fontSize: FONT_SIZE,
+          lineHeight: LINE_HEIGHT,
           readOnly,
           minimap: { enabled: true },
           scrollBeyondLastLine: false,
-          fontSize: 14,
+          //fontSize: 14,
           lineNumbers: 'on',
           wordWrap: 'on',
           automaticLayout: true,
@@ -121,8 +138,62 @@ export function CodeBlock({
           contextmenu: true,
           folding: true,
           renderLineHighlight: 'line',
+          scrollbar: {
+            verticalScrollbarSize: 8,
+            horizontalScrollbarSize: 8,
+          },
         }}
       />
+
+      {/* Contenedor aislado para evitar herencia de CSS */}
+      {/* <div
+        style={{
+          height,
+          border: '1px solid #333',
+          borderRadius: '4px',
+          overflow: 'hidden',
+          lineHeight: 'normal',  // ← Reset crítico
+          fontSize: 'initial',   // ← Reset crítico
+        }}
+      >
+        <Editor
+          height="100%"
+          defaultLanguage={GENEXUS_LANGUAGE_ID}
+          value={displayCode}
+          theme="genexus-dark"
+          onMount={handleEditorMount}
+          options={{
+            readOnly,
+            domReadOnly: readOnly,
+            // ─── Tipografía sincronizada ───
+            fontSize: FONT_SIZE,
+            lineHeight: LINE_HEIGHT,
+            fontFamily: FONT_FAMILY,
+            fontLigatures: false,
+            // ─── Layout ───
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            wordWrap: 'on',
+            // ─── Líneas ───
+            lineNumbers: 'on',
+            lineDecorationsWidth: 0,
+            lineNumbersMinChars: 3,
+            glyphMargin: false,
+            folding: true,
+            renderLineHighlight: 'line',
+            // ─── Padding ───
+            padding: { top: 8, bottom: 8 },
+            // ─── Scroll ───
+            scrollbar: {
+              verticalScrollbarSize: 8,
+              horizontalScrollbarSize: 8,
+            },
+            contextmenu: true,
+          }}
+        />
+      </div> */}
+
     </div>
   );
 }
