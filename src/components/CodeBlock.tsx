@@ -23,15 +23,15 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
     base: 'vs-dark',
     inherit: true,
     rules: [
-      { token: 'keyword',          foreground: '569CD6', fontStyle: 'bold' },
-      { token: 'type.identifier',  foreground: 'DCDCAA' },   // built-ins
-      { token: 'variable',         foreground: '9CDCFE' },   // &variables
-      { token: 'constant',         foreground: 'B5CEA8' },   // literals
-      { token: 'operator.word',    foreground: 'C586C0' },   // And/Or/Not/Like
-      { token: 'string',           foreground: 'CE9178' },
-      { token: 'string.escape',    foreground: 'D7BA7D' },
-      { token: 'number',           foreground: 'B5CEA8' },
-      { token: 'comment',          foreground: '6A9955', fontStyle: 'italic' },
+      { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
+      { token: 'type.identifier', foreground: 'DCDCAA' },   // built-ins
+      { token: 'variable', foreground: '9CDCFE' },   // &variables
+      { token: 'constant', foreground: 'B5CEA8' },   // literals
+      { token: 'operator.word', foreground: 'C586C0' },   // And/Or/Not/Like
+      { token: 'string', foreground: 'CE9178' },
+      { token: 'string.escape', foreground: 'D7BA7D' },
+      { token: 'number', foreground: 'B5CEA8' },
+      { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
     ],
     colors: {
       'editor.background': '#1E1E2E',
@@ -88,10 +88,14 @@ export function CodeBlock({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       {/* Barra superior: info + botón copiar */}
       {(infoLabel || showCopy) && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {infoLabel && <span>{infoLabel}</span>}
+        <div className="code-toolbar">
+          {infoLabel && <span className="info-label">{infoLabel}</span>}
           {showCopy && code.trim() && (
-            <button onClick={handleCopy}>
+            <button
+              type="button"
+              className={`btn-copy${copied ? ' copied' : ''}`}
+              onClick={handleCopy}
+            >
               {copied ? '✅ Copiado!' : copyLabel}
             </button>
           )}
@@ -103,11 +107,11 @@ export function CodeBlock({
         height={height}
         defaultLanguage={GENEXUS_LANGUAGE_ID}
         value={displayCode}
-        theme="genexus-dark"
+        theme="vs-dark"
         onMount={handleEditorMount}
         options={{
           readOnly,
-          minimap: { enabled: false },
+          minimap: { enabled: true },
           scrollBeyondLastLine: false,
           fontSize: 14,
           lineNumbers: 'on',
