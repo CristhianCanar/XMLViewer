@@ -12,15 +12,12 @@ import type {
 } from './types';
 import type { XmlFileEntry } from './utils/fileHandler';
 import { processUploadedFile } from './utils/fileHandler';
-import { registerGenexusLanguage } from './utils/genexusLanguage';
 import {
   buildObjectView,
   getAllGXObjects,
   getAnalyzableObjects,
 } from './utils/xmlParser';
 import { getParseError, parseXmlDocument } from './utils/xmlUtils';
-
-registerGenexusLanguage();
 
 function objectIcon(type: string): string {
   if (type === 'WebPanel') return '🌐';
