@@ -1,63 +1,110 @@
-import hljs from 'highlight.js/lib/core';
+import type { languages } from 'monaco-editor';
 
-const GX_KEYWORDS = [
-  'For', 'Each', 'EndFor', 'If', 'Else', 'EndIf', 'Do', 'While', 'EndDo',
-  'Case', 'EndCase', 'Otherwise', 'Sub', 'EndSub', 'Call', 'Where',
-  'Defined', 'By', 'Parm', 'Exit', 'Return', 'New', 'EndNew', 'Print',
-  'When', 'Duplicate', 'Order', 'None', 'Using', 'Link', 'Blocking',
-  'To', 'Step', 'From', 'In', 'Of', 'Then',
-  'Msg', 'Confirm', 'Error', 'Event', 'EndEvent',
-  'Fetch', 'First', 'Into', 'Unique',
-];
+export const GENEXUS_LANGUAGE_ID = 'genexus';
 
-const GX_BUILT_IN = [
-  'Val', 'Str', 'Trim', 'LTrim', 'RTrim', 'Len', 'Upper', 'Lower',
-  'CtoD', 'DtoC', 'CtoT', 'TtoC', 'Cdow', 'Cmonth',
-  'NullValue', 'IsEmpty', 'IsNull',
-  'UserId', 'Today', 'Now', 'ServerDate', 'ServerDatetime',
-  'Udp', 'Int', 'Round', 'Abs', 'Mod', 'Max', 'Min',
-  'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second',
-  'AddMth', 'AddYr', 'Age', 'Eom', 'TAdd', 'TDiff',
-  'Concat', 'PadL', 'PadR', 'StrReplace', 'StrSearch', 'StrSearchRev',
-  'RGZ', 'Format', 'Space', 'Repl', 'Substr',
-  'ExcelDocument', 'ExcelCells', 'Open', 'Save', 'Close',
-  'HttpClient', 'Execute', 'AddHeader', 'AddVariable',
-  'XmlReader', 'XmlWriter', 'Read', 'ReadType', 'Write', 'WriteElement',
-  'Commit', 'Rollback', 'Submit', 'Sleep', 'Shell', 'Link',
-  'MsgBox', 'AddMsg', 'GXMLines', 'GXMLi',
-  'ToXml', 'FromXml', 'ToString', 'ToNumeric',
-  'Random', 'Iif', 'Type', 'GetMessage', 'SetLanguage',
-];
+export const genexusLanguageConfig: languages.LanguageConfiguration = {
+  comments: {
+    lineComment: '//',
+  },
+  brackets: [
+    ['(', ')'],
+    ['[', ']'],
+  ],
+  autoClosingPairs: [
+    { open: '(', close: ')' },
+    { open: '[', close: ']' },
+    { open: "'", close: "'" },
+    { open: '"', close: '"' },
+  ],
+  surroundingPairs: [
+    { open: '(', close: ')' },
+    { open: "'", close: "'" },
+    { open: '"', close: '"' },
+  ],
+};
 
-const GX_LITERALS = ['True', 'False', 'true', 'false', 'Y', 'N'];
+export const genexusMonarchTokens: languages.IMonarchLanguage = {
+  ignoreCase: true,
 
-let registered = false;
+  keywords: [
+    'For', 'Each', 'EndFor', 'If', 'Else', 'EndIf', 'Do', 'While', 'EndDo',
+    'Case', 'EndCase', 'Otherwise', 'Sub', 'EndSub', 'Call', 'Where',
+    'Defined', 'By', 'Parm', 'Exit', 'Return', 'New', 'EndNew', 'Print',
+    'When', 'Duplicate', 'Order', 'None', 'Using', 'Link', 'Blocking',
+    'To', 'Step', 'From', 'In', 'Of', 'Then',
+    'Msg', 'Confirm', 'Error', 'Event', 'EndEvent',
+    'Fetch', 'First', 'Into', 'Unique',
+  ],
 
-export function registerGenexusLanguage(): void {
-  if (registered) return;
-  registered = true;
+  builtins: [
+    'Val', 'Str', 'Trim', 'LTrim', 'RTrim', 'Len', 'Upper', 'Lower',
+    'CtoD', 'DtoC', 'CtoT', 'TtoC', 'Cdow', 'Cmonth',
+    'NullValue', 'IsEmpty', 'IsNull',
+    'UserId', 'Today', 'Now', 'ServerDate', 'ServerDatetime',
+    'Udp', 'Int', 'Round', 'Abs', 'Mod', 'Max', 'Min',
+    'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second',
+    'AddMth', 'AddYr', 'Age', 'Eom', 'TAdd', 'TDiff',
+    'Concat', 'PadL', 'PadR', 'StrReplace', 'StrSearch', 'StrSearchRev',
+    'RGZ', 'Format', 'Space', 'Repl', 'Substr',
+    'ExcelDocument', 'ExcelCells', 'Open', 'Save', 'Close',
+    'HttpClient', 'Execute', 'AddHeader', 'AddVariable',
+    'XmlReader', 'XmlWriter', 'Read', 'ReadType', 'Write', 'WriteElement',
+    'Commit', 'Rollback', 'Submit', 'Sleep', 'Shell', 'Link',
+    'MsgBox', 'AddMsg', 'GXMLines', 'GXMLi',
+    'ToXml', 'FromXml', 'ToString', 'ToNumeric',
+    'Random', 'Iif', 'Type', 'GetMessage', 'SetLanguage',
+  ],
 
-  hljs.registerLanguage('genexus', () => ({
-    name: 'GeneXus',
-    aliases: ['genexus', 'gx', 'gxprocedure'],
-    case_insensitive: true,
-    keywords: {
-      keyword: GX_KEYWORDS.join(' '),
-      built_in: GX_BUILT_IN.join(' '),
-      literal: GX_LITERALS.join(' '),
-    },
-    contains: [
-      { className: 'variable', begin: /&[A-Za-z_]\w*/ },
-      { className: 'string', begin: /'/, end: /'/, contains: [{ begin: /''/ }] },
-      { className: 'string', begin: /"/, end: /"/, contains: [{ begin: /""/ }] },
-      hljs.COMMENT('//', '$'),
-      { className: 'number', begin: /\b\d+(\.\d+)?\b/ },
-      { className: 'operator', begin: /\b(And|Or|Not|Like)\b/i },
+  literals: ['True', 'False', 'Y', 'N'],
+
+  operators: ['And', 'Or', 'Not', 'Like'],
+
+  tokenizer: {
+    root: [
+      // Comentarios de línea
+      [/\/\/.*$/, 'comment'],
+
+      // Variables GeneXus (&Variable)
+      [/&[A-Za-z_]\w*/, 'variable'],
+
+      // Strings con comilla simple
+      [/'/, 'string', '@stringSingle'],
+
+      // Strings con comilla doble
+      [/"/, 'string', '@stringDouble'],
+
+      // Números
+      [/\b\d+(\.\d+)?\b/, 'number'],
+
+      // Identificadores y palabras clave
+      [/[A-Za-z_]\w*/, {
+        cases: {
+          '@keywords': 'keyword',
+          '@builtins': 'type.identifier',
+          '@literals': 'constant',
+          '@operators': 'operator.word',
+          '@default': 'identifier',
+        },
+      }],
+
+      // Espacios en blanco
+      [/\s+/, 'white'],
+
+      // Operadores y delimitadores
+      [/[=<>!+\-*/%]+/, 'operator'],
+      [/[()[\],;.]/, 'delimiter'],
     ],
-  }));
-}
 
-export function highlightGenexus(code: string): string {
-  registerGenexusLanguage();
-  return hljs.highlight(code, { language: 'genexus' }).value;
-}
+    stringSingle: [
+      [/''/, 'string.escape'],       // escape de comilla simple
+      [/[^']+/, 'string'],
+      [/'/, 'string', '@pop'],
+    ],
+
+    stringDouble: [
+      [/""/, 'string.escape'],       // escape de comilla doble
+      [/[^"]+/, 'string'],
+      [/"/, 'string', '@pop'],
+    ],
+  },
+};

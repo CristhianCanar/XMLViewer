@@ -12,7 +12,7 @@ import type {
 } from './types';
 import type { XmlFileEntry } from './utils/fileHandler';
 import { processUploadedFile } from './utils/fileHandler';
-import { registerGenexusLanguage } from './utils/genexusLanguage';
+//import { registerGenexusLanguage } from './utils/genexusLanguage';
 import {
   buildObjectView,
   getAllGXObjects,
@@ -20,7 +20,7 @@ import {
 } from './utils/xmlParser';
 import { getParseError, parseXmlDocument } from './utils/xmlUtils';
 
-registerGenexusLanguage();
+//registerGenexusLanguage();
 
 function objectIcon(type: string): string {
   if (type === 'WebPanel') return '🌐';
