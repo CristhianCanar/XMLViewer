@@ -5,6 +5,7 @@ export const GENEXUS_LANGUAGE_ID = 'genexus';
 export const genexusLanguageConfig: languages.LanguageConfiguration = {
   comments: {
     lineComment: '//',
+    blockComment: ['/*', '*/'],
   },
   brackets: [
     ['(', ')'],

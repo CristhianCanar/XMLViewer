@@ -57,6 +57,16 @@ export function ObjectView({ data }: ObjectViewProps) {
                 '—'
               ),
           },
+          {
+            key: 'rows',
+            header: 'Filas (para arrays)',
+            render: (r) =>
+              r.filas ? (
+                <span style={{ color: 'var(--accent-teal)' }}>{r.filas > 0 ? `[${r.filas}]` : ''}</span>
+              ) : (
+                '—'
+              ),
+          },
         ]}
         searchPlaceholder="🔍 Buscar variable..."
         countLabel="variables"

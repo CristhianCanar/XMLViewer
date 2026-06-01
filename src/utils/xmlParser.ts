@@ -154,6 +154,7 @@ function extractVariables(obj: Element | null): VariableRow[] {
     const decimals = getTag(v, 'Decimals');
     const picture = getTag(v, 'Picture');
     const basedOn = getTag(v, 'BasedOn');
+    const filas: number =  getTag(v, 'Rows') ? parseInt(getTag(v, 'Rows'), 10) : 0;
 
     rows.push({
       index: i,
@@ -164,6 +165,7 @@ function extractVariables(obj: Element | null): VariableRow[] {
       decimals,
       picture,
       basedOn,
+      filas
     });
   });
 

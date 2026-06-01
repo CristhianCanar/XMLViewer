@@ -28,6 +28,7 @@ export interface VariableRow {
   decimals: string;
   picture: string;
   basedOn: string;
+  filas: number; // >0 = array
 }
 
 export interface AttributeRow {
