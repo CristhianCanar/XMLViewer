@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import type { editor, IDisposable } from 'monaco-editor';
+import type { VariableRow } from '../types';
 import {
   GENEXUS_LANGUAGE_ID,
   genexusLanguageConfig,
@@ -65,6 +66,18 @@ const FONT_SIZE = 14;
 const LINE_HEIGHT = 20;
 //const FONT_FAMILY = "'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace";
 
+// ── Constantes de tipografía ──
+const PADDING_TOP = 8;
+const PADDING_BOTTOM = 8;
+const MIN_HEIGHT = 60;    // altura mínima en px
+const MAX_HEIGHT = 1000;   // altura máxima en px (evita que explote)
+
+// ── Función para calcular la altura ──
+function calcEditorHeight(code: string): number {
+  const lineCount = code.split('\n').length;
+  const raw = lineCount * LINE_HEIGHT + PADDING_TOP + PADDING_BOTTOM;
+  return Math.min(Math.max(raw, MIN_HEIGHT), MAX_HEIGHT);
+}
 
 // ── Props ──
 interface CodeBlockProps {
@@ -75,6 +88,7 @@ interface CodeBlockProps {
   copyLabel?: string;
   height?: string;
   readOnly?: boolean;
+  hoverVariables?: VariableRow[];
 }
 
 // ── Componente ──
@@ -84,8 +98,9 @@ export function CodeBlock({
   infoLabel,
   showCopy = true,
   copyLabel = '📋 Copiar Código',
-  height = '500px',
+  height,
   readOnly = true,
+  hoverVariables = [],
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [appTheme, setAppTheme] = useState<'dark' | 'light'>(() => {
@@ -95,10 +110,29 @@ export function CodeBlock({
     return 'dark';
   });
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
+  const hoverProviderRef = useRef<IDisposable | null>(null);
+  const hoverVariablesRef = useRef<VariableRow[]>(hoverVariables);
+
+  useEffect(() => {
+    hoverVariablesRef.current = hoverVariables;
+  }, [hoverVariables]);
 
   const displayCode = code.trim() || emptyMessage;
 
   
+ // Si no pasan height, se calcula automáticamente
+  const editorHeight = height ?? `${calcEditorHeight(displayCode)}px`;
+
+  useEffect(() => {
+    return () => {
+      if (hoverProviderRef.current) {
+        hoverProviderRef.current.dispose();
+        hoverProviderRef.current = null;
+      }
+    };
+  }, []);
+
   // ✅ Se ejecuta ANTES de montar el editor → tema ya existe cuando Monaco lo necesita
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -125,6 +159,78 @@ export function CodeBlock({
     return () => observer.disconnect();
   }, []);
 
+  const registerHoverProvider = useCallback((monaco: typeof import('monaco-editor')) => {
+    if (hoverProviderRef.current) {
+      hoverProviderRef.current.dispose();
+      hoverProviderRef.current = null;
+    }
+
+    const variables = hoverVariablesRef.current;
+    if (variables.length === 0) return;
+
+    const variableMap = new Map<string, VariableRow>();
+    variables.forEach((variable) => {
+      variableMap.set(variable.name.toLowerCase(), variable);
+    });
+
+    hoverProviderRef.current = monaco.languages.registerHoverProvider(
+      GENEXUS_LANGUAGE_ID,
+      {
+        provideHover(model, position) {
+          const line = model.getLineContent(position.lineNumber);
+          const variableRegex = /[&][A-Za-z_]\w*/g;
+          let match: RegExpExecArray | null;
+          let raw = '';
+          let range: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number; } | null = null;
+
+          while ((match = variableRegex.exec(line))) {
+            const startColumn = match.index + 1;
+            const endColumn = startColumn + match[0].length;
+            if (position.column >= startColumn && position.column <= endColumn) {
+              raw = match[0];
+              range = new monaco.Range(position.lineNumber, startColumn, position.lineNumber, endColumn);
+              break;
+            }
+          }
+
+          if (!range) {
+            const word = model.getWordAtPosition(position);
+            if (!word) return null;
+            raw = word.word;
+            range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+          }
+
+          const name = raw.startsWith('&') ? raw.slice(1).toLowerCase() : raw.toLowerCase();
+          const variable = variableMap.get(name);
+          if (!variable) return null;
+
+          const lines = [
+            `**&${variable.name}**`,
+            `Tipo: \`${variable.type || '—'}\``,
+            `Longitud: ${variable.length || '—'}`,
+          ];
+          if (variable.decimals) {
+            lines.push(`Decimales: ${variable.decimals}`);
+          }
+          if (variable.picture) {
+            lines.push(`Picture: \`${variable.picture}\``);
+          }
+          if (variable.basedOn) {
+            lines.push(`Basado en: ${variable.basedOn}`);
+          }
+          if (variable.filas) {
+            lines.push(`Filas: ${variable.filas}`);
+          }
+
+          return {
+            contents: [{ value: lines.join('  \n') }],
+            range,
+          };
+        },
+      },
+    );
+  }, []);
+
   const handleBeforeMount: BeforeMount = useCallback((monaco) => {
     registerGenexusWithMonaco(monaco);
   }, []);
@@ -134,13 +240,22 @@ export function CodeBlock({
   const handleEditorMount: OnMount = useCallback((editorInstance, monaco) => {
     registerGenexusWithMonaco(monaco);
     editorRef.current = editorInstance;
+    monacoRef.current = monaco;
 
     // Cambiar el modelo al lenguaje GeneXus
     const model = editorInstance.getModel();
     if (model) {
       monaco.editor.setModelLanguage(model, GENEXUS_LANGUAGE_ID);
     }
-  }, []);
+
+    registerHoverProvider(monaco);
+  }, [registerHoverProvider]);
+
+  useEffect(() => {
+    if (monacoRef.current) {
+      registerHoverProvider(monacoRef.current);
+    }
+  }, [hoverVariables, registerHoverProvider]);
 
   const handleCopy = async () => {
     if (!code.trim()) return;
@@ -169,7 +284,7 @@ export function CodeBlock({
 
       {/* Monaco Editor */}
       <Editor
-        height={height}
+        height={editorHeight}
         defaultLanguage={GENEXUS_LANGUAGE_ID}
         value={displayCode}
         theme={appTheme === 'light' ? 'genexus-light' : 'genexus-dark'}

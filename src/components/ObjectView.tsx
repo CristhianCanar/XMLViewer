@@ -126,6 +126,7 @@ export function ObjectView({ data }: ObjectViewProps) {
       <CollapsibleSection id="sec-source" title="💻 Código Fuente">
         <CodeBlock
           code={data.sourceCode}
+          hoverVariables={data.variables}
           emptyMessage="// Sin código fuente disponible"
           infoLabel={
             sourceLines > 0

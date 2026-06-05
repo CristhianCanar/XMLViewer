@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import type { LoadedFileInfo } from '../types';
-import { decodeIso8859, normalizeXmlEncoding } from './xmlUtils';
+import { normalizeXmlEncoding } from './xmlUtils';
+import { decodeBufferWithEncoding, readFileWithEncoding } from './fileDecoder';
 
 export interface XmlFileEntry {
   path: string;
@@ -46,7 +47,7 @@ export async function processUploadedFile(
           path: relativePath,
           loadContent: async () => {
             const buffer = await zipEntry.async('arraybuffer');
-            return decodeIso8859(buffer);
+            return normalizeXmlEncoding(decodeBufferWithEncoding(buffer));
           },
           loadSize: async () => {
             const data = await zipEntry.async('uint8array');
@@ -82,15 +83,7 @@ export async function processUploadedFile(
   }
 }
 
-function readXmlFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      let text = reader.result as string;
-      text = normalizeXmlEncoding(text);
-      resolve(text);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(file, 'ISO-8859-1');
-  });
+async function readXmlFile(file: File): Promise<string> {
+  const text = await readFileWithEncoding(file);
+  return normalizeXmlEncoding(text);
 }
