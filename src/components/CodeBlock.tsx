@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import type { editor, IDisposable } from 'monaco-editor';
-import type { VariableRow } from '../types';
+import type { AttributeRow, VariableRow } from '../types';
 import {
   GENEXUS_LANGUAGE_ID,
   genexusLanguageConfig,
@@ -89,6 +89,7 @@ interface CodeBlockProps {
   height?: string;
   readOnly?: boolean;
   hoverVariables?: VariableRow[];
+  hoverAtributos?: AttributeRow[];
 }
 
 // ── Componente ──
@@ -101,6 +102,7 @@ export function CodeBlock({
   height,
   readOnly = true,
   hoverVariables = [],
+  hoverAtributos = [],
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [appTheme, setAppTheme] = useState<'dark' | 'light'>(() => {
@@ -113,10 +115,15 @@ export function CodeBlock({
   const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
   const hoverProviderRef = useRef<IDisposable | null>(null);
   const hoverVariablesRef = useRef<VariableRow[]>(hoverVariables);
+  const hoverAtributosRef = useRef<AttributeRow[]>(hoverAtributos);
 
   useEffect(() => {
     hoverVariablesRef.current = hoverVariables;
   }, [hoverVariables]);
+
+  useEffect(() => {
+    hoverAtributosRef.current = hoverAtributos;
+  }, [hoverAtributos]);
 
   const displayCode = code.trim() || emptyMessage;
 
@@ -166,11 +173,17 @@ export function CodeBlock({
     }
 
     const variables = hoverVariablesRef.current;
-    if (variables.length === 0) return;
+    const atributos = hoverAtributosRef.current;
+    if (variables.length === 0 && atributos.length === 0) return;
 
     const variableMap = new Map<string, VariableRow>();
     variables.forEach((variable) => {
       variableMap.set(variable.name.toLowerCase(), variable);
+    });
+
+    const atributosMap = new Map<string, AttributeRow>();
+    atributos.forEach((atributo) => {
+      atributosMap.set(atributo.name.toLowerCase(), atributo);
     });
 
     hoverProviderRef.current = monaco.languages.registerHoverProvider(
@@ -178,7 +191,7 @@ export function CodeBlock({
       {
         provideHover(model, position) {
           const line = model.getLineContent(position.lineNumber);
-          const variableRegex = /[&][A-Za-z_]\w*/g;
+          const variableRegex = /&?[A-Za-z_]\w*/g;
           let match: RegExpExecArray | null;
           let raw = '';
           let range: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number; } | null = null;
@@ -188,7 +201,12 @@ export function CodeBlock({
             const endColumn = startColumn + match[0].length;
             if (position.column >= startColumn && position.column <= endColumn) {
               raw = match[0];
-              range = new monaco.Range(position.lineNumber, startColumn, position.lineNumber, endColumn);
+              range = {
+                startLineNumber: position.lineNumber,
+                startColumn,
+                endLineNumber: position.lineNumber,
+                endColumn,
+              };
               break;
             }
           }
@@ -197,35 +215,65 @@ export function CodeBlock({
             const word = model.getWordAtPosition(position);
             if (!word) return null;
             raw = word.word;
-            range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+            range = {
+              startLineNumber: position.lineNumber,
+              startColumn: word.startColumn,
+              endLineNumber: position.lineNumber,
+              endColumn: word.endColumn,
+            };
           }
 
           const name = raw.startsWith('&') ? raw.slice(1).toLowerCase() : raw.toLowerCase();
           const variable = variableMap.get(name);
-          if (!variable) return null;
+          if (variable) {
+            const lines = [
+              `**&${variable.name}**`,
+              `Tipo: \`${variable.type || '—'}\``,
+              `Longitud: ${variable.length || '—'}`,
+            ];
+            if (variable.decimals) {
+              lines.push(`Decimales: ${variable.decimals}`);
+            }
+            if (variable.picture) {
+              lines.push(`Picture: \`${variable.picture}\``);
+            }
+            if (variable.basedOn) {
+              lines.push(`Basado en: ${variable.basedOn}`);
+            }
+            if (variable.filas) {
+              lines.push(`Filas: ${variable.filas}`);
+            }
 
-          const lines = [
-            `**&${variable.name}**`,
-            `Tipo: \`${variable.type || '—'}\``,
-            `Longitud: ${variable.length || '—'}`,
-          ];
-          if (variable.decimals) {
-            lines.push(`Decimales: ${variable.decimals}`);
-          }
-          if (variable.picture) {
-            lines.push(`Picture: \`${variable.picture}\``);
-          }
-          if (variable.basedOn) {
-            lines.push(`Basado en: ${variable.basedOn}`);
-          }
-          if (variable.filas) {
-            lines.push(`Filas: ${variable.filas}`);
+            return {
+              contents: [{ value: lines.join('  \n') }],
+              range,
+            };
           }
 
-          return {
-            contents: [{ value: lines.join('  \n') }],
-            range,
-          };
+          const atributo = atributosMap.get(name);
+          if (atributo) {
+            const linesDos = [
+              `**${atributo.name}**`,
+              `Tipo: \`${atributo.type || '—'}\``,
+              `Longitud: ${atributo.length || '—'}`,
+            ];
+            if (atributo.decimals) {
+              linesDos.push(`Decimales: ${atributo.decimals}`);
+            }
+            if (atributo.domain) {
+              linesDos.push(`Dominio: ${atributo.domain}`);
+            }
+            if (atributo.picture) {
+              linesDos.push(`Picture: \`${atributo.picture}\``);
+            }
+
+            return {
+              contents: [{ value: linesDos.join('  \n') }],
+              range,
+            };
+          }
+
+          return null;
         },
       },
     );

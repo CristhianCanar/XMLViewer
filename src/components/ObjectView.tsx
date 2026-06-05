@@ -127,6 +127,7 @@ export function ObjectView({ data }: ObjectViewProps) {
         <CodeBlock
           code={data.sourceCode}
           hoverVariables={data.variables}
+          hoverAtributos={data.attributes}
           emptyMessage="// Sin código fuente disponible"
           infoLabel={
             sourceLines > 0
