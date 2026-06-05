@@ -65,6 +65,9 @@ export const genexusMonarchTokens: languages.IMonarchLanguage = {
       // Comentarios de línea
       [/\/\/.*$/, 'comment'],
 
+      // Comentarios de bloque
+      [/\/\*/, 'comment', '@comment'],
+
       // Variables GeneXus (&Variable)
       [/&[A-Za-z_]\w*/, 'variable'],
 
@@ -106,6 +109,13 @@ export const genexusMonarchTokens: languages.IMonarchLanguage = {
       [/""/, 'string.escape'],       // escape de comilla doble
       [/[^"]+/, 'string'],
       [/"/, 'string', '@pop'],
+    ],
+
+
+    comment: [
+      [/[^*]+/, 'comment'],
+      [/\*\//, 'comment', '@pop'],
+      [/./, 'comment'],
     ],
   },
 };

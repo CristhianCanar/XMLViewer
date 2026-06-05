@@ -5,13 +5,15 @@ interface CollapsibleSectionProps {
   title: string;
   children: ReactNode;
   defaultOpen?: boolean;
+  maxHeight?: string;
 }
 
 export function CollapsibleSection({
   id,
   title,
   children,
-  defaultOpen = true,
+  defaultOpen = false,
+  maxHeight = '80vh',
 }: CollapsibleSectionProps) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
 
@@ -26,7 +28,9 @@ export function CollapsibleSection({
         <h3>{title}</h3>
         <span className="toggle">▼</span>
       </button>
-      <div className="section-body">{children}</div>
+      <div className="section-body" style={{ maxHeight, overflowY: 'auto' }}>
+        {children}
+      </div>
     </section>
   );
 }

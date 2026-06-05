@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DropZone } from './components/DropZone';
 import { FileInfoBar } from './components/FileInfoBar';
 import { Modal } from './components/Modal';
@@ -28,6 +28,7 @@ function objectIcon(type: string): string {
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('sec-upload');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [fileInfo, setFileInfo] = useState<LoadedFileInfo | null>(null);
   const [objectData, setObjectData] = useState<ObjectViewData | null>(null);
   const [modal, setModal] = useState<ModalState | null>(null);
@@ -135,10 +136,38 @@ export default function App() {
     [handleXmlContent],
   );
 
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   const handleNavigate = (id: string) => {
     setActiveNav(id);
     setSidebarOpen(false);
   };
+
+  const SunIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+      fill="none" stroke="#EF9F27" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+    </svg>
+  );
+
+  const MoonIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+      fill="none" stroke="#B4B2A9" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+    </svg>
+  );
 
   return (
     <div className="app">
@@ -154,6 +183,19 @@ export default function App() {
       <Sidebar activeId={activeNav} open={sidebarOpen} onNavigate={handleNavigate} />
 
       <main className="main">
+        <div className="theme-toggle">
+          <button
+            type="button"
+            className="theme-button"
+            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+            title={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            {/* {theme === 'dark' ? 'Tema Claro' : 'Tema Oscuro'} */}
+          </button>
+        </div>
+
         <section id="sec-upload">
           <DropZone onFile={handleFile} />
           {fileInfo && <FileInfoBar info={fileInfo} />}
