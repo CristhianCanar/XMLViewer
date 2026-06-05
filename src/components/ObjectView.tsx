@@ -14,158 +14,166 @@ export function ObjectView({ data }: ObjectViewProps) {
     : 0;
 
   return (
-  <>
-    <CollapsibleSection id="sec-model" title="📋 Información del Modelo / KB">
-      <InfoGrid items={data.modelInfo} emptyMessage="No se encontró información del modelo." />
-    </CollapsibleSection>
+    <>
+      <CollapsibleSection id="sec-object" title="🔧 Información del Objeto" defaultOpen={true}>
+        <InfoGrid items={[
+          ...data.objectInfo,
+          { label: '⚙️ Condiciones', value: data.conditions || 'Sin condiciones definidas.' }
+        ]} />
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-object" title="🔧 Información del Objeto">
-      <InfoGrid items={data.objectInfo} />
-    </CollapsibleSection>
+      <CollapsibleSection id="sec-model" title="📋 Información del Modelo / KB" defaultOpen={true}>
+        <InfoGrid items={data.modelInfo} emptyMessage="No se encontró información del modelo." />
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-doc" title="📝 Documentación">
-      <div className="doc-content">{data.documentation}</div>
-    </CollapsibleSection>
+      <CollapsibleSection id="sec-doc" title="📝 Documentación">
+        <div className="doc-content">{data.documentation}</div>
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-vars" title="📊 Variables">
-      <SearchableTable
-        rows={data.variables}
-        columns={[
-          { key: 'index', header: '#' },
-          {
-            key: 'name',
-            header: 'Nombre',
-            className: 'var-name',
-            render: (r) => `&${r.name}`,
-          },
-          { key: 'title', header: 'Título' },
-          { key: 'type', header: 'Tipo', className: 'type-col' },
-          { key: 'length', header: 'Longitud', render: (r) => r.length || '—' },
-          { key: 'decimals', header: 'Decimales', render: (r) => r.decimals || '—' },
-          {
-            key: 'picture',
-            header: 'Picture',
-            render: (r) => <code>{r.picture || '—'}</code>,
-          },
-          {
-            key: 'basedOn',
-            header: 'Basado En',
-            render: (r) =>
-              r.basedOn ? (
-                <span style={{ color: 'var(--accent-teal)' }}>{r.basedOn}</span>
-              ) : (
-                '—'
-              ),
-          },
-          {
-            key: 'rows',
-            header: 'Filas (para arrays)',
-            render: (r) =>
-              r.filas ? (
-                <span style={{ color: 'var(--accent-teal)' }}>{r.filas > 0 ? `[${r.filas}]` : ''}</span>
-              ) : (
-                '—'
-              ),
-          },
-        ]}
-        searchPlaceholder="🔍 Buscar variable..."
-        countLabel="variables"
-        emptyMessage="No se encontraron variables en este objeto."
-        getSearchText={(r) =>
-          `${r.name} ${r.title} ${r.type} ${r.basedOn} ${r.picture}`
-        }
-      />
-    </CollapsibleSection>
-
-    <CollapsibleSection id="sec-source" title="💻 Código Fuente">
-      <CodeBlock
-        code={data.sourceCode}
-        emptyMessage="// Sin código fuente disponible"
-        infoLabel={
-          sourceLines > 0
-            ? `${sourceLines} líneas — ${data.objectType}`
-            : '0 líneas'
-        }
-      />
-    </CollapsibleSection>
-
-    <CollapsibleSection id="sec-events" title="🎯 Eventos (WebPanel)">
-      {data.objectType !== 'WebPanel' ? (
-        <div className="no-aplica">
-          📌 Los Eventos solo aplican para objetos de tipo <strong>WebPanel</strong>.
-        </div>
-      ) : !data.eventsCode ? (
-        <div className="no-aplica">Sin eventos definidos en este WebPanel.</div>
-      ) : (
-        <CodeBlock
-          code={data.eventsCode}
-          infoLabel={`${data.eventsCode.split('\n').length} líneas de eventos`}
-          copyLabel="📋 Copiar Eventos"
+      <CollapsibleSection id="sec-vars" title="📊 Variables">
+        <SearchableTable
+          rows={data.variables}
+          columns={[
+            { key: 'index', header: '#' },
+            {
+              key: 'name',
+              header: 'Nombre',
+              className: 'var-name',
+              render: (r) => `&${r.name}`,
+            },
+            { key: 'title', header: 'Título' },
+            { key: 'type', header: 'Tipo', className: 'type-col' },
+            { key: 'length', header: 'Longitud', render: (r) => r.length || '—' },
+            { key: 'decimals', header: 'Decimales', render: (r) => r.decimals || '—' },
+            {
+              key: 'picture',
+              header: 'Picture',
+              render: (r) => <code>{r.picture || '—'}</code>,
+            },
+            {
+              key: 'basedOn',
+              header: 'Basado En',
+              render: (r) =>
+                r.basedOn ? (
+                  <span style={{ color: 'var(--accent-teal)' }}>{r.basedOn}</span>
+                ) : (
+                  '—'
+                ),
+            },
+            {
+              key: 'rows',
+              header: 'Filas (para arrays)',
+              render: (r) =>
+                r.filas ? (
+                  <span style={{ color: 'var(--accent-teal)' }}>{r.filas > 0 ? `[${r.filas}]` : ''}</span>
+                ) : (
+                  '—'
+                ),
+            },
+          ]}
+          searchPlaceholder="🔍 Buscar variable..."
+          countLabel="variables"
+          emptyMessage="No se encontraron variables en este objeto."
+          getSearchText={(r) =>
+            `${r.name} ${r.title} ${r.type} ${r.basedOn} ${r.picture}`
+          }
         />
-      )}
-    </CollapsibleSection>
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-rules" title="📐 Reglas (Rules)">
-      <CodeBlock
-        code={data.rules}
-        emptyMessage="// Sin reglas definidas."
-        showCopy={false}
-      />
-    </CollapsibleSection>
+      <CollapsibleSection id="sec-attrs" title="🗄️ Atributos de la KB">
+        <SearchableTable
+          rows={data.attributes}
+          columns={[
+            { key: 'index', header: '#' },
+            { key: 'name', header: 'Nombre', className: 'att-name' },
+            { key: 'title', header: 'Título' },
+            { key: 'type', header: 'Tipo', className: 'type-col', render: (r) => r.type || '—' },
+            { key: 'length', header: 'Longitud', render: (r) => r.length || '—' },
+            { key: 'decimals', header: 'Decimales', render: (r) => r.decimals || '—' },
+            {
+              key: 'domain',
+              header: 'Dominio',
+              render: (r) =>
+                r.domain ? (
+                  <span style={{ color: 'var(--accent-teal)' }}>{r.domain}</span>
+                ) : (
+                  '—'
+                ),
+            },
+            {
+              key: 'picture',
+              header: 'Picture',
+              render: (r) => <code>{r.picture || '—'}</code>,
+            },
+          ]}
+          searchPlaceholder="🔍 Buscar atributo..."
+          countLabel="atributos"
+          emptyMessage="No se encontraron atributos en este XML."
+          getSearchText={(r) =>
+            `${r.name} ${r.title} ${r.type} ${r.domain} ${r.picture}`
+          }
+        />
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-cond" title="⚙️ Condiciones">
-      <div className="rules-code">
-        {data.conditions || 'Sin condiciones definidas.'}
-      </div>
-    </CollapsibleSection>
+      <CollapsibleSection id="sec-rules" title="📐 Reglas (Rules)">
+        <CodeBlock
+          code={data.rules}
+          emptyMessage="// Sin reglas definidas."
+          showCopy={false}
+        />
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-attrs" title="🗄️ Atributos de la KB">
-      <SearchableTable
-        rows={data.attributes}
-        columns={[
-          { key: 'index', header: '#' },
-          { key: 'name', header: 'Nombre', className: 'att-name' },
-          { key: 'title', header: 'Título' },
-          { key: 'type', header: 'Tipo', className: 'type-col', render: (r) => r.type || '—' },
-          { key: 'length', header: 'Longitud', render: (r) => r.length || '—' },
-          { key: 'decimals', header: 'Decimales', render: (r) => r.decimals || '—' },
-          {
-            key: 'domain',
-            header: 'Dominio',
-            render: (r) =>
-              r.domain ? (
-                <span style={{ color: 'var(--accent-teal)' }}>{r.domain}</span>
-              ) : (
-                '—'
-              ),
-          },
-          {
-            key: 'picture',
-            header: 'Picture',
-            render: (r) => <code>{r.picture || '—'}</code>,
-          },
-        ]}
-        searchPlaceholder="🔍 Buscar atributo..."
-        countLabel="atributos"
-        emptyMessage="No se encontraron atributos en este XML."
-        getSearchText={(r) =>
-          `${r.name} ${r.title} ${r.type} ${r.domain} ${r.picture}`
-        }
-      />
-    </CollapsibleSection>
+      <CollapsibleSection id="sec-source" title="💻 Código Fuente">
+        <CodeBlock
+          code={data.sourceCode}
+          emptyMessage="// Sin código fuente disponible"
+          infoLabel={
+            sourceLines > 0
+              ? `${sourceLines} líneas — ${data.objectType}`
+              : '0 líneas'
+          }
+        />
+      </CollapsibleSection>
 
-    <CollapsibleSection id="sec-webform" title="🌐 Web Form">
-      <WebFormSection data={data} />
-    </CollapsibleSection>
+      {/*
+        <CollapsibleSection id="sec-events" title="🎯 Eventos (WebPanel)">
+          {data.objectType !== 'WebPanel' ? (
+            <div className="no-aplica">
+              📌 Los Eventos solo aplican para objetos de tipo <strong>WebPanel</strong>.
+            </div>
+          ) : !data.eventsCode ? (
+            <div className="no-aplica">Sin eventos definidos en este WebPanel.</div>
+          ) : (
+            <CodeBlock
+              code={data.eventsCode}
+              infoLabel={`${data.eventsCode.split('\n').length} líneas de eventos`}
+              copyLabel="📋 Copiar Eventos"
+            />
+          )}
+        </CollapsibleSection> 
+      */}
 
-    <CollapsibleSection id="sec-layout" title="📄 Layout (Report)">
-      <LayoutSection data={data} />
-    </CollapsibleSection>
-  </>
+
+      {/* <CollapsibleSection id="sec-cond" title="⚙️ Condiciones">
+        <div className="rules-code">
+          {data.conditions || 'Sin condiciones definidas.'}
+        </div>
+      </CollapsibleSection> */}
+
+      {/* 
+      <CollapsibleSection id="sec-webform" title="🌐 Web Form">
+        <WebFormSection data={data} />
+      </CollapsibleSection>
+
+      <CollapsibleSection id="sec-layout" title="📄 Layout (Report)">
+        <LayoutSection data={data} />
+      </CollapsibleSection> */}
+      
+    </>
   );
 }
 
-function WebFormSection({ data }: { data: ObjectViewData }) {
+/* function WebFormSection({ data }: { data: ObjectViewData }) {
   if (data.objectType !== 'WebPanel') {
     return (
       <div className="no-aplica">
@@ -342,4 +350,4 @@ function LayoutSection({ data }: { data: ObjectViewData }) {
       )}
     </>
   );
-}
+} */

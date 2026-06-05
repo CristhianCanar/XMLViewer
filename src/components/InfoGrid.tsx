@@ -10,10 +10,37 @@ export function InfoGrid({ items, emptyMessage = 'Sin información disponible.' 
     return <div className="no-aplica">{emptyMessage}</div>;
   }
 
-  return (
-    <div className="info-grid">
+  {/* <div className="info-grid">
       {items.map((item) => (
         <div key={item.label} className="info-item">
+          <label>{item.label}</label>
+          {item.label === 'Nombre' ? (
+            <span className="highlight-name">{item.value || '—'}</span>
+          ) : item.label === 'Tipo Objeto' ? (
+            <span className="badge badge-type">{item.value}</span>
+          ) : item.label === 'Es Main (IsMain)' ? (
+            <span className={`badge ${item.value === 'Sí' ? 'badge-yes' : 'badge-no'}`}>
+              {item.value === 'Sí' ? '✔ Sí' : '✘ No'}
+            </span>
+          ) : item.label === '⚙️ Condiciones' ? (
+            <span>
+              {item.value || '—'}
+            </span>
+          ) : (
+            <span>{item.value || '—'}</span>
+          )}
+        </div>
+      ))}
+    </div> */}
+
+  return (
+
+    <div className="info-grid">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className={`info-item${item.label === '⚙️ Condiciones' || item.label === 'KB Path' ? ' info-item--full' : ''}`}
+        >
           <label>{item.label}</label>
           {item.label === 'Nombre' ? (
             <span className="highlight-name">{item.value || '—'}</span>
@@ -29,5 +56,6 @@ export function InfoGrid({ items, emptyMessage = 'Sin información disponible.' 
         </div>
       ))}
     </div>
+
   );
 }

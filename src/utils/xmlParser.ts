@@ -77,12 +77,12 @@ function extractModelInfo(doc: Document): InfoItem[] {
 
   if (kmw) {
     items.push(
-      { label: 'KB Path', value: getTag(kmw, 'Path') },
       {
         label: 'Versión KMW',
         value: `${getTag(kmw, 'MajorVersion')}.${getTag(kmw, 'MinorVersion')}`,
       },
       { label: 'Max GX Build', value: getTag(kmw, 'MaxGxBuildSaved') },
+      { label: 'KB Path', value: getTag(kmw, 'Path') },
     );
   }
 
@@ -92,8 +92,8 @@ function extractModelInfo(doc: Document): InfoItem[] {
 function extractObjectInfo(obj: Element | null, objType: string): InfoItem[] {
   if (!obj) return [];
 
-  const info = obj.querySelector('Info');
   const objInfo = obj.querySelector('ObjInfo');
+  const info = obj.querySelector('Info');
   const name = info ? getTag(info, 'Name') : '';
   const desc = info ? getTag(info, 'Description') : '';
   const isMain = objInfo ? getTag(objInfo, 'IsMain') : '';
@@ -154,7 +154,7 @@ function extractVariables(obj: Element | null): VariableRow[] {
     const decimals = getTag(v, 'Decimals');
     const picture = getTag(v, 'Picture');
     const basedOn = getTag(v, 'BasedOn');
-    const filas: number =  getTag(v, 'Rows') ? parseInt(getTag(v, 'Rows'), 10) : 0;
+    const filas: number = getTag(v, 'Rows') ? parseInt(getTag(v, 'Rows'), 10) : 0;
 
     rows.push({
       index: i,
@@ -337,7 +337,7 @@ function extractLayout(obj: Element | null, objType: string): LayoutData | null 
       type: getTag(paper, 'PaperId') || paper.getAttribute('PaperId') || '',
       //width: getTag(paper, 'SizeX') + ' px' || paper.getAttribute('SizeX') + ' px' || '0',
       //length: getTag(paper, 'SizeY') + ' px' || paper.getAttribute('SizeY') + ' px' || '0'
-       // valores en píxeles
+      // valores en píxeles
       width: String(toPx(sizeX)) + ' px',
       length: String(toPx(sizeY)) + ' px',
     };

@@ -2,17 +2,17 @@ import type { NavLink } from '../types';
 
 const NAV_LINKS: NavLink[] = [
   { id: 'sec-upload', icon: '📂', label: 'Cargar Archivo' },
-  { id: 'sec-model', icon: '📋', label: 'Modelo / KB' },
   { id: 'sec-object', icon: '🔧', label: 'Objeto' },
+  { id: 'sec-model', icon: '📋', label: 'Modelo / KB' },
   { id: 'sec-doc', icon: '📝', label: 'Documentación' },
   { id: 'sec-vars', icon: '📊', label: 'Variables' },
-  { id: 'sec-source', icon: '💻', label: 'Código Fuente' },
-  { id: 'sec-events', icon: '🎯', label: 'Eventos' },
+  { id: 'sec-attrs', icon: '🗄️', label: 'Atributos BD' },
   { id: 'sec-rules', icon: '📐', label: 'Reglas' },
-  { id: 'sec-cond', icon: '⚙️', label: 'Condiciones' },
-  { id: 'sec-attrs', icon: '🗄️', label: 'Atributos' },
-  { id: 'sec-webform', icon: '🌐', label: 'Web Form' },
-  { id: 'sec-layout', icon: '📄', label: 'Layout (Report)' },
+  { id: 'sec-source', icon: '💻', label: 'Código Fuente' },
+  /* { id: 'sec-events', icon: '🎯', label: 'Eventos' }, */
+  /* { id: 'sec-cond', icon: '⚙️', label: 'Condiciones' }, */
+  /* { id: 'sec-webform', icon: '🌐', label: 'Web Form' }, */
+  /* { id: 'sec-layout', icon: '📄', label: 'Layout (Report)' }, */
 ];
 
 interface SidebarProps {
