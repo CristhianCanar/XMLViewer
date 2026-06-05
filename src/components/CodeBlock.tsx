@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import {
@@ -18,7 +18,7 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
   monaco.languages.setLanguageConfiguration(GENEXUS_LANGUAGE_ID, genexusLanguageConfig);
   monaco.languages.setMonarchTokensProvider(GENEXUS_LANGUAGE_ID, genexusMonarchTokens);
 
-  // Tema personalizado (opcional, ajustable a tu gusto)
+  // Tema personalizado (oscuro)
   monaco.editor.defineTheme('genexus-dark', {
     base: 'vs-dark',
     inherit: true,
@@ -35,6 +35,26 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
     ],
     colors: {
       'editor.background': '#1E1E2E',
+    },
+  });
+
+  // Tema personalizado (claro)
+  monaco.editor.defineTheme('genexus-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'keyword', foreground: '0B5394', fontStyle: 'bold' },
+      { token: 'type.identifier', foreground: '385723' },
+      { token: 'variable', foreground: '003366' },
+      { token: 'constant', foreground: '295A2F' },
+      { token: 'operator.word', foreground: '6A1B9A' },
+      { token: 'string', foreground: 'A31515' },
+      { token: 'string.escape', foreground: '795E26' },
+      { token: 'number', foreground: '098658' },
+      { token: 'comment', foreground: '008000', fontStyle: 'italic' },
+    ],
+    colors: {
+      'editor.background': '#FFFFFF',
     },
   });
 }
@@ -68,12 +88,43 @@ export function CodeBlock({
   readOnly = true,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const [appTheme, setAppTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light') {
+      return 'light';
+    }
+    return 'dark';
+  });
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const displayCode = code.trim() || emptyMessage;
 
   
   // ✅ Se ejecuta ANTES de montar el editor → tema ya existe cuando Monaco lo necesita
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const updateTheme = () => {
+      setAppTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+    };
+
+    updateTheme();
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          updateTheme();
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleBeforeMount: BeforeMount = useCallback((monaco) => {
     registerGenexusWithMonaco(monaco);
   }, []);
@@ -121,9 +172,9 @@ export function CodeBlock({
         height={height}
         defaultLanguage={GENEXUS_LANGUAGE_ID}
         value={displayCode}
-        theme="genexus-dark"
+        theme={appTheme === 'light' ? 'genexus-light' : 'genexus-dark'}
         beforeMount={handleBeforeMount}   // ← Registra ANTES
-        onMount={handleEditorMount}        // ← Referencia DESPUÉ
+        onMount={handleEditorMount}        // ← Referencia DESPUÉS
         options={{
           fontSize: FONT_SIZE,
           lineHeight: LINE_HEIGHT,

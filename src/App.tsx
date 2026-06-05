@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DropZone } from './components/DropZone';
 import { FileInfoBar } from './components/FileInfoBar';
 import { Modal } from './components/Modal';
@@ -28,6 +28,7 @@ function objectIcon(type: string): string {
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('sec-upload');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [fileInfo, setFileInfo] = useState<LoadedFileInfo | null>(null);
   const [objectData, setObjectData] = useState<ObjectViewData | null>(null);
   const [modal, setModal] = useState<ModalState | null>(null);
@@ -135,6 +136,18 @@ export default function App() {
     [handleXmlContent],
   );
 
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   const handleNavigate = (id: string) => {
     setActiveNav(id);
     setSidebarOpen(false);
@@ -154,6 +167,16 @@ export default function App() {
       <Sidebar activeId={activeNav} open={sidebarOpen} onNavigate={handleNavigate} />
 
       <main className="main">
+        <div className="theme-toggle">
+          <button
+            type="button"
+            className="theme-button"
+            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+          >
+            {theme === 'dark' ? 'Tema Claro' : 'Tema Oscuro'}
+          </button>
+        </div>
+
         <section id="sec-upload">
           <DropZone onFile={handleFile} />
           {fileInfo && <FileInfoBar info={fileInfo} />}

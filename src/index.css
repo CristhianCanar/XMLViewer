@@ -1,6 +1,7 @@
 @import 'highlight.js/styles/atom-one-dark.css';
 
 :root {
+  --bantotal-red: #AC1012;
   --bg-primary: #1e1e2e;
   --bg-secondary: #181825;
   --bg-surface: #252538;
@@ -13,11 +14,30 @@
   --accent-cyan: #89dceb;
   --accent-orange: #fab387;
   --accent-mauve: #cba6f7;
-  --accent-red: #f38ba8;
+  --accent-red: var(--bantotal-red);
   --accent-yellow: #f9e2af;
   --accent-teal: #94e2d5;
   --border: #313244;
   --sidebar-w: 260px;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface2: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --accent-green: #16a34a;
+  --accent-blue: #2563eb;
+  --accent-cyan: #0ea5e9;
+  --accent-orange: #f97316;
+  --accent-mauve: #a855f7;
+  --accent-red: var(--bantotal-red);
+  --accent-yellow: #f59e0b;
+  --accent-teal: #14b8a6;
+  --border: #d1d5db;
 }
 
 * {
@@ -118,6 +138,28 @@ body {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 18px;
+}
+
+.theme-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.theme-button {
+  background: transparent;
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.theme-button:hover {
+  background: rgba(172, 16, 18, 0.08);
 }
 
 .dropzone {
