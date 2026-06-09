@@ -1,4 +1,5 @@
 @import 'highlight.js/styles/atom-one-dark.css';
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
 
 :root {
   --bantotal-red: #AC1012;
@@ -14,11 +15,13 @@
   --accent-cyan: #89dceb;
   --accent-orange: #fab387;
   --accent-mauve: #cba6f7;
-  --accent-red: var(--accent-green);
+  --accent-red: #ffffff;
   --accent-yellow: #f9e2af;
   --accent-teal: #94e2d5;
   --border: #313244;
   --sidebar-w: 260px;
+  --font-comfortaa: "Comfortaa", "Comfortaa Fallback";
+
 }
 
 [data-theme="light"] {
@@ -79,11 +82,12 @@ body {
 }
 
 .sidebar .logo h2 {
-  font-size: 18px;
   color: var(--accent-red);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
+  font-family: var(--font-comfortaa);
+  font-weight: 700;
 }
 
 .sidebar .logo span {
@@ -147,15 +151,15 @@ body {
 }
 
 .theme-button {
-  display       : flex;
-  align-items   : center;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  background    : transparent;
-  border        : 1px solid var(--color-border-secondary);
-  border-radius : 100%;
-  padding       : 5px;
-  cursor        : pointer;
-  transition    : all 0.2s ease;
+  background: transparent;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 100%;
+  padding: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .theme-button:hover {
@@ -826,7 +830,9 @@ body {
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
 

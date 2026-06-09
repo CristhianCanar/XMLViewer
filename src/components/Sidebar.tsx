@@ -1,4 +1,5 @@
 import type { NavLink } from '../types';
+import packageJson from '../../package.json'
 
 const NAV_LINKS: NavLink[] = [
   { id: 'sec-upload', icon: '📂', label: 'Cargar Archivo' },
@@ -24,12 +25,29 @@ interface SidebarProps {
 export function Sidebar({ activeId, open, onNavigate }: SidebarProps) {
   return (
     <aside className={`sidebar${open ? ' open' : ''}`}>
-      <div className="logo">
-        <h2>
-          ⚡ GX Viewer GeneXus 9 / 8
-          <small style={{ fontSize: 11, color: 'var(--accent-orange)' }}>v4.1</small>
+      <div className="logo flex flex-col items-start gap-1 sm:gap-2">
+        <h2 className="flex items-center gap-1.5 m-0 text-xl font-semibold leading-none">
+          <svg
+            width="20"
+            height="35"
+            viewBox="0 0 22 34"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 8 L15 17 L7 26"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Orion
+          <small style={{ fontSize: 11, color: 'var(--accent-orange)' }}>v{packageJson.version}</small>
         </h2>
-        <span>GeneXus XML / XPZ Object Viewer</span>
+        <span className="text-sm text-muted-foreground leading-snug">
+          Visualización de Objetos XML y XPZ para GeneXus 8/9
+        </span>
       </div>
       <nav>
         {NAV_LINKS.map((link) => (
@@ -51,7 +69,7 @@ export function Sidebar({ activeId, open, onNavigate }: SidebarProps) {
       <footer className="sidebar-footer">
         <div className="footer-content">
           <span>Developed by</span>
-          <strong>CCANAR</strong>
+          <strong>CDPOP - CCANAR</strong>
         </div>
 
         <div className="footer-meta">
