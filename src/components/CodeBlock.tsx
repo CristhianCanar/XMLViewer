@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import type { editor, IDisposable } from 'monaco-editor';
 import type { AttributeRow, VariableRow } from '../types';
@@ -72,6 +72,24 @@ const PADDING_BOTTOM = 8;
 const MIN_HEIGHT = 60;    // altura mínima en px
 const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
 
+interface SubroutineEntry {
+  name: string;
+  lineNumber: number;
+}
+
+const SUBROUTINE_REGEX = /^\s*Sub\s+['"]?([A-Za-z_][\w]*)['"]?\b/im;
+
+function getSubroutines(code: string): SubroutineEntry[] {
+  return code
+    .split('\n')
+    .map((line, index) => {
+      const match = line.match(SUBROUTINE_REGEX);
+      if (!match) return null;
+      return { name: match[1], lineNumber: index + 1 };
+    })
+    .filter((entry): entry is SubroutineEntry => Boolean(entry));
+}
+
 // ── Función para calcular la altura ──
 function calcEditorHeight(code: string): number {
   const lineCount = code.split('\n').length;
@@ -105,6 +123,7 @@ export function CodeBlock({
   hoverAtributos = [],
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const [selectedSubroutine, setSelectedSubroutine] = useState('');
   const [appTheme, setAppTheme] = useState<'dark' | 'light'>(() => {
     if (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light') {
       return 'light';
@@ -126,9 +145,9 @@ export function CodeBlock({
   }, [hoverAtributos]);
 
   const displayCode = code.trim() || emptyMessage;
+  const subroutines = useMemo(() => getSubroutines(code), [code]);
 
-  
- // Si no pasan height, se calcula automáticamente
+  // Si no pasan height, se calcula automáticamente
   const editorHeight = height ?? `${calcEditorHeight(displayCode)}px`;
 
   useEffect(() => {
@@ -312,12 +331,55 @@ export function CodeBlock({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSubroutineJump = useCallback((lineNumber: number) => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco) return;
+
+    editor.setSelection(new monaco.Range(lineNumber, 1, lineNumber, 1));
+    editor.revealLineInCenter(lineNumber);
+    editor.focus();
+  }, []);
+
+  const handleSubroutineChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextLine = Number(event.target.value);
+    if (!Number.isFinite(nextLine) || nextLine <= 0) {
+      return;
+    }
+
+    handleSubroutineJump(nextLine);
+    setSelectedSubroutine(event.target.value); // ← conserva el valor en lugar de limpiar
+
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       {/* Barra superior: info + botón copiar */}
-      {(infoLabel || showCopy) && (
+      {(infoLabel || showCopy || subroutines.length > 0) && (
         <div className="code-toolbar">
-          {infoLabel && <span className="info-label">{infoLabel}</span>}
+          <div className="code-toolbar-left">
+            {infoLabel && <span className="info-label">{infoLabel}</span>}
+            {subroutines.length > 0 && (
+              <label className="subroutine-switcher">
+                <span className="subroutine-label">Subrutinas</span>
+                <select
+                  className="subroutine-select"
+                  value={selectedSubroutine}
+                  onChange={handleSubroutineChange}
+                  aria-label="Ir a una subrutina"
+                >
+                  <option value="">Ir a subrutina…</option>
+                  {subroutines.map((sub) => (
+                    <option key={`${sub.name}-${sub.lineNumber}`} value={sub.lineNumber}>
+                      {sub.name} (línea {sub.lineNumber})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+
           {showCopy && code.trim() && (
             <button
               type="button"
