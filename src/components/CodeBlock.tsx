@@ -106,7 +106,7 @@ const PADDING_TOP = 8;
 const PADDING_BOTTOM = 8;
 const MIN_HEIGHT = 60;    // altura mínima en px
 //const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
-const MAX_HEIGHT = window.innerHeight * 0.6;
+const MAX_HEIGHT = window.innerHeight * 0.8; // máximo el 80% de la altura de la ventana
 
 interface SubroutineEntry {
   name: string;

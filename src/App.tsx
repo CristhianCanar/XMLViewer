@@ -41,9 +41,9 @@ export default function App() {
     setFileInfo(info);
     setObjectData(view);
     setModal(null);
-    setActiveNav('sec-model');
+    setActiveNav('sec-object');
     requestAnimationFrame(() => {
-      document.getElementById('sec-model')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('sec-object')?.scrollIntoView({ behavior: 'smooth' });
     });
   }, []);
 
