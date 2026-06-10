@@ -9,30 +9,7 @@ export function InfoGrid({ items, emptyMessage = 'Sin información disponible.' 
   if (items.length === 0) {
     return <div className="no-aplica">{emptyMessage}</div>;
   }
-
-  {/* <div className="info-grid">
-      {items.map((item) => (
-        <div key={item.label} className="info-item">
-          <label>{item.label}</label>
-          {item.label === 'Nombre' ? (
-            <span className="highlight-name">{item.value || '—'}</span>
-          ) : item.label === 'Tipo Objeto' ? (
-            <span className="badge badge-type">{item.value}</span>
-          ) : item.label === 'Es Main (IsMain)' ? (
-            <span className={`badge ${item.value === 'Sí' ? 'badge-yes' : 'badge-no'}`}>
-              {item.value === 'Sí' ? '✔ Sí' : '✘ No'}
-            </span>
-          ) : item.label === '⚙️ Condiciones' ? (
-            <span>
-              {item.value || '—'}
-            </span>
-          ) : (
-            <span>{item.value || '—'}</span>
-          )}
-        </div>
-      ))}
-    </div> */}
-
+  
   return (
 
     <div className="info-grid">

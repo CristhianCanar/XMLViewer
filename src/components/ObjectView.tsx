@@ -123,7 +123,7 @@ export function ObjectView({ data }: ObjectViewProps) {
         />
       </CollapsibleSection>
 
-      <CollapsibleSection id="sec-source" title="💻 Código Fuente">
+      <CollapsibleSection id="sec-source" title="💻 Código Fuente" maxHeight='100vh'>
         <CodeBlock
           code={data.sourceCode}
           hoverVariables={data.variables}

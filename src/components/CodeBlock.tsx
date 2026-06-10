@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import type { editor, IDisposable } from 'monaco-editor';
 import type { AttributeRow, VariableRow } from '../types';
@@ -18,6 +18,41 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
   monaco.languages.register({ id: GENEXUS_LANGUAGE_ID });
   monaco.languages.setLanguageConfiguration(GENEXUS_LANGUAGE_ID, genexusLanguageConfig);
   monaco.languages.setMonarchTokensProvider(GENEXUS_LANGUAGE_ID, genexusMonarchTokens);
+  monaco.languages.registerDefinitionProvider(GENEXUS_LANGUAGE_ID, {
+    provideDefinition(model, position) {
+      const line = model.getLineContent(position.lineNumber);
+      DO_CALL_REGEX.lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      while ((match = DO_CALL_REGEX.exec(line))) {
+        const literal = match[2] ?? '';
+        const startColumn = match.index + match[0].indexOf(literal) + 1;
+        const endColumn = startColumn + literal.length;
+
+        if (position.column >= startColumn && position.column <= endColumn) {
+          const targetName = normalizeSubroutineName(literal);
+          const definitionLine = model
+            .getLinesContent()
+            .findIndex((lineContent, index) => {
+              if (index + 1 === position.lineNumber) return false;
+
+              const subMatch = lineContent.match(/^\s*Sub\s+['"]([^'"]+)['"]/i);
+              return subMatch ? normalizeSubroutineName(subMatch[1]) === targetName : false;
+            });
+
+          if (definitionLine >= 0) {
+            return [{
+              uri: model.uri,
+              range: new monaco.Range(definitionLine + 1, 1, definitionLine + 1, 1),
+            }];
+          }
+          return null;
+        }
+      }
+
+      return null;
+    },
+  });
 
   // Tema personalizado (oscuro)
   monaco.editor.defineTheme('genexus-dark', {
@@ -70,7 +105,31 @@ const LINE_HEIGHT = 20;
 const PADDING_TOP = 8;
 const PADDING_BOTTOM = 8;
 const MIN_HEIGHT = 60;    // altura mínima en px
-const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
+//const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
+const MAX_HEIGHT = window.innerHeight * 0.8; // máximo el 80% de la altura de la ventana
+
+interface SubroutineEntry {
+  name: string;
+  lineNumber: number;
+}
+
+const SUBROUTINE_REGEX = /^\s*Sub\s+['"]([^'"]+)['"]/im;
+const DO_CALL_REGEX = /\bDo\s+(['"])([^'"]+)\1/gi;
+
+function normalizeSubroutineName(value: string) {
+  return value.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function getSubroutines(code: string): SubroutineEntry[] {
+  return code
+    .split('\n')
+    .map((line, index) => {
+      const match = line.match(SUBROUTINE_REGEX);
+      if (!match) return null;
+      return { name: match[1], lineNumber: index + 1 };
+    })
+    .filter((entry): entry is SubroutineEntry => Boolean(entry));
+}
 
 // ── Función para calcular la altura ──
 function calcEditorHeight(code: string): number {
@@ -105,6 +164,7 @@ export function CodeBlock({
   hoverAtributos = [],
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const [selectedSubroutine, setSelectedSubroutine] = useState('');
   const [appTheme, setAppTheme] = useState<'dark' | 'light'>(() => {
     if (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light') {
       return 'light';
@@ -126,9 +186,9 @@ export function CodeBlock({
   }, [hoverAtributos]);
 
   const displayCode = code.trim() || emptyMessage;
+  const subroutines = useMemo(() => getSubroutines(code), [code]);
 
-  
- // Si no pasan height, se calcula automáticamente
+  // Si no pasan height, se calcula automáticamente
   const editorHeight = height ?? `${calcEditorHeight(displayCode)}px`;
 
   useEffect(() => {
@@ -312,12 +372,55 @@ export function CodeBlock({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSubroutineJump = useCallback((lineNumber: number) => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco) return;
+
+    editor.setSelection(new monaco.Range(lineNumber, 1, lineNumber, 1));
+    editor.revealLineInCenter(lineNumber);
+    editor.focus();
+  }, []);
+
+  const handleSubroutineChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextLine = Number(event.target.value);
+    if (!Number.isFinite(nextLine) || nextLine <= 0) {
+      return;
+    }
+
+    handleSubroutineJump(nextLine);
+    setSelectedSubroutine(event.target.value); // ← conserva el valor en lugar de limpiar
+
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       {/* Barra superior: info + botón copiar */}
-      {(infoLabel || showCopy) && (
+      {(infoLabel || showCopy || subroutines.length > 0) && (
         <div className="code-toolbar">
-          {infoLabel && <span className="info-label">{infoLabel}</span>}
+          <div className="code-toolbar-left">
+            {infoLabel && <span className="info-label">{infoLabel}</span>}
+            {subroutines.length > 0 && (
+              <label className="subroutine-switcher">
+                <span className="subroutine-label">Subrutinas</span>
+                <select
+                  className="subroutine-select"
+                  value={selectedSubroutine}
+                  onChange={handleSubroutineChange}
+                  aria-label="Ir a una subrutina"
+                >
+                  <option value="">Ir a subrutina…</option>
+                  {subroutines.map((sub) => (
+                    <option key={`${sub.name}-${sub.lineNumber}`} value={sub.lineNumber}>
+                      {sub.name} (línea {sub.lineNumber})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+
           {showCopy && code.trim() && (
             <button
               type="button"
