@@ -18,6 +18,41 @@ function registerGenexusWithMonaco(monaco: typeof import('monaco-editor')) {
   monaco.languages.register({ id: GENEXUS_LANGUAGE_ID });
   monaco.languages.setLanguageConfiguration(GENEXUS_LANGUAGE_ID, genexusLanguageConfig);
   monaco.languages.setMonarchTokensProvider(GENEXUS_LANGUAGE_ID, genexusMonarchTokens);
+  monaco.languages.registerDefinitionProvider(GENEXUS_LANGUAGE_ID, {
+    provideDefinition(model, position) {
+      const line = model.getLineContent(position.lineNumber);
+      DO_CALL_REGEX.lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      while ((match = DO_CALL_REGEX.exec(line))) {
+        const literal = match[2] ?? '';
+        const startColumn = match.index + match[0].indexOf(literal) + 1;
+        const endColumn = startColumn + literal.length;
+
+        if (position.column >= startColumn && position.column <= endColumn) {
+          const targetName = normalizeSubroutineName(literal);
+          const definitionLine = model
+            .getLinesContent()
+            .findIndex((lineContent, index) => {
+              if (index + 1 === position.lineNumber) return false;
+
+              const subMatch = lineContent.match(/^\s*Sub\s+['"]([^'"]+)['"]/i);
+              return subMatch ? normalizeSubroutineName(subMatch[1]) === targetName : false;
+            });
+
+          if (definitionLine >= 0) {
+            return [{
+              uri: model.uri,
+              range: new monaco.Range(definitionLine + 1, 1, definitionLine + 1, 1),
+            }];
+          }
+          return null;
+        }
+      }
+
+      return null;
+    },
+  });
 
   // Tema personalizado (oscuro)
   monaco.editor.defineTheme('genexus-dark', {
@@ -78,8 +113,12 @@ interface SubroutineEntry {
   lineNumber: number;
 }
 
-
 const SUBROUTINE_REGEX = /^\s*Sub\s+['"]([^'"]+)['"]/im;
+const DO_CALL_REGEX = /\bDo\s+(['"])([^'"]+)\1/gi;
+
+function normalizeSubroutineName(value: string) {
+  return value.trim().replace(/\s+/g, ' ').toLowerCase();
+}
 
 function getSubroutines(code: string): SubroutineEntry[] {
   return code
