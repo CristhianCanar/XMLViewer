@@ -70,14 +70,16 @@ const LINE_HEIGHT = 20;
 const PADDING_TOP = 8;
 const PADDING_BOTTOM = 8;
 const MIN_HEIGHT = 60;    // altura mínima en px
-const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
+//const MAX_HEIGHT = 600;   // altura máxima en px (evita que explote)
+const MAX_HEIGHT = window.innerHeight * 0.6;
 
 interface SubroutineEntry {
   name: string;
   lineNumber: number;
 }
 
-const SUBROUTINE_REGEX = /^\s*Sub\s+['"]?([A-Za-z_][\w]*)['"]?\b/im;
+
+const SUBROUTINE_REGEX = /^\s*Sub\s+['"]([^'"]+)['"]/im;
 
 function getSubroutines(code: string): SubroutineEntry[] {
   return code

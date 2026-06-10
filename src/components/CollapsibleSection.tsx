@@ -13,7 +13,7 @@ export function CollapsibleSection({
   title,
   children,
   defaultOpen = false,
-  maxHeight = '80vh',
+  maxHeight = '100vh',
 }: CollapsibleSectionProps) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
 
