@@ -17,6 +17,9 @@ export interface GXObjectSummary {
   type: string;
   name: string;
   description: string;
+  guid?: string;
+  parentGuid?: string;
+  parentName?: string;
 }
 
 export interface VariableRow {

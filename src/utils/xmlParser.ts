@@ -11,7 +11,98 @@ import { getTag } from './xmlUtils';
 
 const ANALYZABLE_TYPES = ['Procedure', 'Report', 'WebPanel'];
 
+function isGx16Export(doc: Document): boolean {
+  return doc.querySelector('ExportFile > Objects > Object') !== null;
+}
+
+function getDependenciesMap(doc: Document): Map<string, { name: string; type: string; packageName: string }> {
+  const map = new Map<string, { name: string; type: string; packageName: string }>();
+
+  doc.querySelectorAll('ExportFile > Dependencies > Reference').forEach((ref) => {
+    const id = ref.getAttribute('Id') || ref.getAttribute('id') || '';
+    const type = ref.getAttribute('Type') || '';
+    const props = ref.querySelector('Properties');
+
+    if (!id) return;
+
+    map.set(id, {
+      name: props?.getAttribute('Name') || '',
+      type,
+      packageName: props?.getAttribute('PackageName') || '',
+    });
+  });
+
+  return map;
+}
+
+function getObjectsIdentityMap(doc: Document): Map<string, string> {
+  const map = new Map<string, string>();
+
+  doc.querySelectorAll('ExportFile > ObjectsIdentityMapping > ObjectIdentity').forEach((identity) => {
+    const guid = identity.querySelector('Guid')?.textContent?.trim() || '';
+    const name = identity.getAttribute('Name') || '';
+
+    if (guid) {
+      map.set(guid, name);
+    }
+  });
+
+  return map;
+}
+
+function resolveObjectType(typeId: string, dependencies: Map<string, { name: string; type: string; packageName: string }>): string {
+  const dependency = dependencies.get(typeId);
+  return dependency?.name || typeId;
+}
+
+function getDependencyReference(doc: Document, type: 'Object' | 'Part', id?: string, name?: string) {
+  const refs = Array.from(doc.querySelectorAll('ExportFile > Dependencies > Reference'));
+
+  return refs.find((ref) => {
+    const refType = ref.getAttribute('Type') || '';
+    const refId = ref.getAttribute('Id') || '';
+    const properties = ref.querySelector('Properties');
+    const refName = properties?.getAttribute('Name') || '';
+
+    return refType === type && (!id || refId === id) && (!name || refName === name);
+  });
+}
+
+function getPartIdByName(doc: Document, name: string): string {
+  const ref = getDependencyReference(doc, 'Part', undefined, name);
+  return ref?.getAttribute('Id') || '';
+}
+
+function resolveGuidName(guid: string | null | undefined, identityMap: Map<string, string>): string {
+  if (!guid) return '';
+  return identityMap.get(guid) || guid;
+}
+
+function getGx16ObjectElements(doc: Document): Element[] {
+  return Array.from(doc.querySelectorAll('ExportFile > Objects > Object'));
+}
+
 export function getAllGXObjects(doc: Document): GXObjectSummary[] {
+  if (isGx16Export(doc)) {
+    const dependencies = getDependenciesMap(doc);
+    const identityMap = getObjectsIdentityMap(doc);
+
+    return getGx16ObjectElements(doc).map((objectEl, index) => {
+      const typeId = objectEl.getAttribute('type') || '';
+      const parentGuid = objectEl.getAttribute('parentGuid') || objectEl.getAttribute('parent') || '';
+
+      return {
+        index,
+        type: resolveObjectType(typeId, dependencies) || typeId || 'Object',
+        name: objectEl.getAttribute('name') || objectEl.getAttribute('fullyQualifiedName') || '',
+        description: objectEl.getAttribute('description') || '',
+        guid: objectEl.getAttribute('guid') || '',
+        parentGuid,
+        parentName: resolveGuidName(parentGuid, identityMap),
+      };
+    });
+  }
+
   const objects: GXObjectSummary[] = [];
   doc.querySelectorAll('GXObject').forEach((gxObj, index) => {
     const child = gxObj.firstElementChild;
@@ -32,6 +123,10 @@ export function getAnalyzableObjects(doc: Document): GXObjectSummary[] {
 }
 
 function findObjectElement(doc: Document, summary: GXObjectSummary): Element | null {
+  if (isGx16Export(doc)) {
+    return getGx16ObjectElements(doc)[summary.index] ?? null;
+  }
+
   const gxObjects = doc.querySelectorAll('GXObject');
   const gxObj = gxObjects[summary.index];
   return gxObj?.firstElementChild ?? null;
@@ -45,13 +140,13 @@ export function buildObjectView(doc: Document, summary: GXObjectSummary): Object
     objectType: objType,
     objectName: summary.name,
     modelInfo: extractModelInfo(doc),
-    objectInfo: extractObjectInfo(obj, objType),
-    documentation: extractDocumentation(doc),
-    variables: extractVariables(obj),
+    objectInfo: extractObjectInfo(obj, objType, summary),
+    documentation: extractDocumentation(doc, obj),
+    variables: extractVariables(doc, obj),
     sourceCode: extractSourceCode(doc, obj, objType),
     eventsCode: extractEventsCode(obj, objType),
-    rules: extractRules(obj),
-    conditions: extractConditions(obj),
+    rules: extractRules(doc, obj),
+    conditions: extractConditions(doc, obj),
     attributes: extractAttributes(doc),
     webForm: extractWebForm(obj, objType),
     layout: extractLayout(obj, objType),
@@ -89,8 +184,25 @@ function extractModelInfo(doc: Document): InfoItem[] {
   return items;
 }
 
-function extractObjectInfo(obj: Element | null, objType: string): InfoItem[] {
+function extractObjectInfo(obj: Element | null, objType: string, summary?: GXObjectSummary): InfoItem[] {
   if (!obj) return [];
+
+  if (isGx16Export(obj.ownerDocument)) {
+    const lastUpdate = obj.getAttribute('lastUpdate') || '';
+    const fullyQualified = obj.getAttribute('fullyQualifiedName') || '';
+    const guid = obj.getAttribute('guid') || '';
+    const parentGuid = obj.getAttribute('parentGuid') || '';
+
+    return [
+      { label: 'Tipo Objeto', value: objType },
+      { label: 'Nombre', value: obj.getAttribute('name') || '' },
+      { label: 'Nombre completo', value: fullyQualified },
+      { label: 'Descripción', value: obj.getAttribute('description') || '' },
+      { label: 'GUID', value: guid },
+      { label: 'Parent GUID', value: parentGuid || summary?.parentName || '' },
+      { label: 'Última Actualización', value: lastUpdate },
+    ].filter((item) => item.value !== '');
+  }
 
   const objInfo = obj.querySelector('ObjInfo');
   const info = obj.querySelector('Info');
@@ -109,7 +221,27 @@ function extractObjectInfo(obj: Element | null, objType: string): InfoItem[] {
   ];
 }
 
-function extractDocumentation(doc: Document): string {
+function extractDocumentation(doc: Document, obj?: Element | null): string {
+  if (obj && isGx16Export(doc)) {
+    const documentationPartId = getPartIdByName(doc, 'Documentation');
+    const documentationPart = documentationPartId
+      ? obj.querySelector(`Part[type="${documentationPartId}"]`)
+      : null;
+    const innerHtml = documentationPart?.querySelector('InnerHtml')?.textContent ?? '';
+
+    if (innerHtml) {
+      return innerHtml
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/<BR\s*\/?>/gi, '\n')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+  }
+
   const docEl = doc.querySelector('Documentation > Source');
   if (!docEl) return 'Sin documentación disponible.';
 
@@ -140,11 +272,44 @@ function inferVariableType(
   return 'Var';
 }
 
-function extractVariables(obj: Element | null): VariableRow[] {
+function extractVariables(doc: Document, obj: Element | null): VariableRow[] {
   if (!obj) return [];
 
   const rows: VariableRow[] = [];
   let i = 0;
+
+  if (isGx16Export(doc)) {
+    const variablesPartId = getPartIdByName(doc, 'Variables');
+    const variablesPart = variablesPartId
+      ? obj.querySelector(`Part[type="${variablesPartId}"]`)
+      : null;
+    const variableNodes = variablesPart ? variablesPart.querySelectorAll(':scope > Variable') : obj.querySelectorAll(':scope > Variable');
+
+    variableNodes.forEach((v) => {
+      i++;
+      const name = v.getAttribute('Name') || '';
+      const title = v.getAttribute('Title') || '';
+      const length = v.querySelector('Length')?.textContent?.trim() || '';
+      const decimals = v.querySelector('Decimals')?.textContent?.trim() || '';
+      const picture = v.querySelector('Picture')?.textContent?.trim() || '';
+      const basedOn = v.querySelector('BasedOn')?.textContent?.trim() || '';
+      const filas = v.querySelector('Rows')?.textContent?.trim() ? parseInt(v.querySelector('Rows')?.textContent?.trim() ?? '0', 10) : 0;
+
+      rows.push({
+        index: i,
+        name,
+        title,
+        type: inferVariableType(length, decimals, picture, basedOn),
+        length,
+        decimals,
+        picture,
+        basedOn,
+        filas,
+      });
+    });
+
+    return rows;
+  }
 
   obj.querySelectorAll(':scope > Variable').forEach((v) => {
     i++;
@@ -173,6 +338,21 @@ function extractVariables(obj: Element | null): VariableRow[] {
 }
 
 function extractSourceCode(doc: Document, obj: Element | null, objType: string): string {
+  if (obj && isGx16Export(doc)) {
+    const sourcePartId = getPartIdByName(doc, 'Source');
+    const sourcePart = sourcePartId
+      ? obj.querySelector(`Part[type="${sourcePartId}"]`)
+      : null;
+    const sourceText = sourcePart?.querySelector('Source')?.textContent?.trim() ?? '';
+    if (sourceText) return sourceText;
+
+    const allSources = Array.from(obj.querySelectorAll('Part > Source'))
+      .map((s) => s.textContent?.trim() ?? '')
+      .filter(Boolean);
+
+    return allSources.join('\n\n');
+  }
+
   let sourceText = '';
   doc.querySelectorAll('CodeBlock > Source').forEach((s) => {
     const t = s.textContent?.trim() ?? '';
@@ -193,12 +373,28 @@ function extractEventsCode(obj: Element | null, objType: string): string | null 
   return eventsEl?.textContent?.trim() ?? '';
 }
 
-function extractRules(obj: Element | null): string {
+function extractRules(doc: Document, obj: Element | null): string {
+  if (obj && isGx16Export(doc)) {
+    const rulesPartId = getPartIdByName(doc, 'Rules');
+    const rulesPart = rulesPartId
+      ? obj.querySelector(`Part[type="${rulesPartId}"]`)
+      : null;
+    return rulesPart?.querySelector('Source')?.textContent?.trim() ?? '';
+  }
+
   const rulesEl = obj?.querySelector('Rules');
   return rulesEl?.textContent?.trim() ?? '';
 }
 
-function extractConditions(obj: Element | null): string {
+function extractConditions(doc: Document, obj: Element | null): string {
+  if (obj && isGx16Export(doc)) {
+    const conditionsPartId = getPartIdByName(doc, 'Conditions');
+    const conditionsPart = conditionsPartId
+      ? obj.querySelector(`Part[type="${conditionsPartId}"]`)
+      : null;
+    return conditionsPart?.querySelector('Source')?.textContent?.trim() ?? '';
+  }
+
   const condEl = obj?.querySelector('Conditions');
   return condEl?.textContent?.trim() ?? '';
 }
@@ -206,6 +402,28 @@ function extractConditions(obj: Element | null): string {
 function extractAttributes(doc: Document): AttributeRow[] {
   const rows: AttributeRow[] = [];
   let i = 0;
+
+  if (isGx16Export(doc)) {
+    doc.querySelectorAll('ExportFile > Attributes > Attribute').forEach((att) => {
+      i++;
+      const name = att.getAttribute('name') || att.getAttribute('fullyQualifiedName') || '';
+      const description = att.getAttribute('description') || '';
+      const type = att.querySelector('Properties > Property > Name') ? '' : '';
+
+      rows.push({
+        index: i,
+        name,
+        title: description,
+        type: type || 'Attribute',
+        length: '',
+        decimals: '',
+        domain: '',
+        picture: '',
+      });
+    });
+
+    return rows;
+  }
 
   doc.querySelectorAll('Attributes > GXAtt').forEach((gxatt) => {
     const att = gxatt.querySelector('Attribute');
